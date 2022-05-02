@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "module": "ES2020",
+    "outDir": "temp"
+  },
+  "files": [
+    "src/lib/workerUnderTest.ts"
+  ],
+  "paths": {
+    "$lib": [
+      "src/lib"
+    ],
+    "$lib/*": [
+      "src/lib/*"
+    ],
+  }
+}
