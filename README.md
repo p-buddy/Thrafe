@@ -20,7 +20,9 @@ On one side, it's completely unobvious how best to compile & bundle a web worker
 const worker = new Worker('https://www.my-example-website.com/static/worker.js');
 ```
 
-Bundlers seem to have varying support 
+Bundlers are supporting this in different ways, which I think is already confusing.
+
+[Vite's solution](https://vitejs.dev/guide/features.html#web-workers) seems pretty neat, [webpack seems to be working on it]() (not immediately clear to me how this works with typescript), but regardless I don't like how any of the solutions I've seen. 
 
 ### Two-way communication
 
