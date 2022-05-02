@@ -19,7 +19,7 @@ Secondly, though the message passing structure of web workers is amazing in its 
 
 When you invetably make a programming mistake, the web worker 'framework' will try its best to do what you asked (even if it makes no sense). When that happens and things probably go wrong, the web worker will either error out spectacularly or, worse, silently. Just as with javascript's [footgun](https://en.wiktionary.org/wiki/footgun) qualities, typescript to the rescue!
 
-But how should I set up my types to make writing workers easy and readable? See section [Anatomy of a Thrafe Implementation](##Anatomy-of-a-Thrafe-Implementation)
+But how should I set up my types to make writing workers easy and readable? See section [Anatomy of a Thrafe Implementation](#Anatomy-of-a-Thrafe-Implementation)
 
 ## Anatomy of a Thrafe Implementation
 
