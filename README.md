@@ -9,6 +9,8 @@ This is a library that aims to make it simple and straightforward to make typesa
 
 When working on my [CommunicativeCode](https://github.com/p-buddy/CommunicativeCode) webapp, I found it tricky to use both Typescript and web workers. 
 
+### Bungling Bundling
+
 On one side, it's completely unobvious how best to compile & bundle a web worker written in typescript down to a single javascript file so that it can then be executed as a worker in the browser, e.g.:
 
 ```js
