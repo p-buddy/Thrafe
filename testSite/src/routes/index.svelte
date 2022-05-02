@@ -1,20 +1,15 @@
 <script lang="ts">
   import { EMainToWorker } from "$lib/mainToWorker";
   import type { MainToWorker } from "$lib/mainToWorker";
-
   import { onMount } from "svelte";
   import Thread from "$lib/thrafe/Thread";
-  import type { WorkerToMain } from "$lib/workerToMain";
+  import type { Structure } from "$lib/workerUnderTest";
 
   onMount(() => {
-    const thread = new Thread<MainToWorker, WorkerToMain>("workerUnderTest.js");
-    thread.dispatch<EMainToWorker.GetSquare>(
-      EMainToWorker.GetSquare,
-      4,
-      (result) => {
-        console.log(result);
-      }
-    );
+    const thread = new Thread<Structure>("workerUnderTest");
+    thread.dispatch(EMainToWorker.GetSquare, 4, (result) => {
+      console.log(result);
+    });
   });
 </script>
 
