@@ -20,6 +20,8 @@ On one side, it's completely unobvious how best to compile & bundle a web worker
 const worker = new Worker('https://www.my-example-website.com/static/worker.js');
 ```
 
+Bundlers seem to have varying support 
+
 ### Two-way communication
 
 ## Anatomy of a Thrafe Implementation
