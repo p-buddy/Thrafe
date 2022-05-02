@@ -15,7 +15,7 @@ On one side, it's completely unobvious how best to compile & bundle a web worker
 const worker = new Worker('https://www.my-example-website.com/static/worker.js');
 ```
 
-Secondly, though the message passing structure of web workers is amazing in its flexibility, that flexibility of course comes at a cost -- when you invetably make a programming mistake, the web worker 'framework' will try its best to do what you asked (even if it makes no sense). Just as with javascript's [footgun](https://en.wiktionary.org/wiki/footgun) qualities, typescript to the rescue!
+Secondly, though the message passing structure of web workers is amazing in its flexibility, that flexibility of course comes at a cost -- when you invetably make a programming mistake, the web worker 'framework' will try its best to do what you asked (even if it makes no sense) and likely error out, either spectacularly or, worse, silently. Just as with javascript's [footgun](https://en.wiktionary.org/wiki/footgun) qualities, typescript to the rescue!
 
 But how should I set up my types to make writing workers easy and readable? See section 
 
