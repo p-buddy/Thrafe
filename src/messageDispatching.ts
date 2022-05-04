@@ -21,3 +21,15 @@ export const dispatch = <
     ? context.postMessage({ event, payload, responseID: addResponseHandler<TStructure, TEventKey>(context, event, onResponse[0] as any) } as TPostedMessage)
     : context.postMessage({ event, payload } as TPostedMessage);
 }
+
+/*
+export const resolve = async <
+  TStructure extends OneWayMessageStructureType,
+  TEventKey extends keyof TStructure & number > (
+    context: TContext,
+      event: TEventKey,
+        payload: TStructure[TEventKey]['payload'],
+  ...onResponse: TOnResponse<TStructure, TEventKey>): Promise<TStructure[TEventKey]['response']> => {
+
+}
+*/

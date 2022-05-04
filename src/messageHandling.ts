@@ -44,10 +44,13 @@ export const addResponseHandler = <
   context.onmessage ?? (context.onmessage = messageHandler);
   while (responseHandlers.length <= event) responseHandlers.push(undefined);
   responseHandlers[event] ?? (responseHandlers[event] = [handler]);
-  if (responseHandlers[event]?.length === 1) return 0;
-  if (freeResponseIDs.length < event || !freeResponseIDs[event]) return (responseHandlers[event]?.push(handler) ?? 0) - 1;
-  const id = freeResponseIDs[event]?.pop() as number ?? -1;
-  (responseHandlers[event] as Function[])[id] = handler;
+  const arr = responseHandlers[event] as Function[];
+  const length = arr?.length ?? -1;
+  if (length === 1) return 0;
+  const free = freeResponseIDs.length < event ? undefined : freeResponseIDs[event];
+  if (!free || free.length === 0) return (arr?.push(handler) ?? 0) - 1;
+  const id = free?.pop() as number ?? -1;
+  arr[id] = handler;
   return id;
 }
 
@@ -60,6 +63,7 @@ const enum EMessageType {
 const returnResponseID = (id: number, event: number) => {
   while (freeResponseIDs.length <= event) freeResponseIDs.push(undefined);
   freeResponseIDs[event]?.push(id) ?? (freeResponseIDs[event] = [id]);
+  // what does the below do?
   if (freeResponseIDs[event]?.length === responseHandlers[event]?.length) freeResponseIDs[event] = undefined;
 }
 

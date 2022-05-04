@@ -17,6 +17,8 @@
       },
     });
 
+    // const x = await thread.resolve(EMainToWorker.GetSquare, 16);
+
     thread.dispatch(EMainToWorker.GetSquare, 16, (r: number) => {
       thread.handle<EWorkerToMain.dummy>(EWorkerToMain.dummy, () => {
         console.log("dummy!");
