@@ -18,7 +18,6 @@
     });
 
     thread.dispatch(EMainToWorker.GetSquare, 16, (r: number) => {
-      console.log(r);
       thread.handle<EWorkerToMain.dummy>(EWorkerToMain.dummy, () => {
         console.log("dummy!");
       });
