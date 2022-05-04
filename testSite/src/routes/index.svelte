@@ -4,11 +4,25 @@
   import { onMount } from "svelte";
   import Thread from "$lib/thrafe/Thread";
   import type { Structure } from "$lib/workerUnderTest";
+  import { EWorkerToMain } from "$lib/workerToMain";
+  import { longFunction } from "$lib/utils";
 
   onMount(() => {
-    const thread = new Thread<Structure>("workerUnderTest");
-    thread.dispatch(EMainToWorker.GetSquare, 4, (result) => {
-      console.log(result);
+    const thread = new Thread<Structure>("workerUnderTest", {
+      [EWorkerToMain.dummy]: (p) => {
+        console.log(p);
+      },
+      [EWorkerToMain.responseful]: (p) => {
+        return 0;
+      },
+    });
+
+    thread.dispatch(EMainToWorker.GetSquare, 16, (r: number) => {
+      console.log(r);
+      thread.handle<EWorkerToMain.dummy>(EWorkerToMain.dummy, () => {
+        console.log("dummy!");
+      });
+      thread.dispatch<EMainToWorker.SayHi>(EMainToWorker.SayHi, "goober");
     });
   });
 </script>

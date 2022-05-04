@@ -1,5 +1,5 @@
 import type TContext from './TContext';
-import type { MessageStructureType, ResponseType, TPostedMessage } from "./messageStructure";
+import type { OneWayMessageStructureType, ResponseType, TPostedMessage } from "./messageStructure";
 
 type THandlers = Function[] | undefined;
 const messageHandlers: THandlers[] = [[]];
@@ -9,16 +9,16 @@ type TFreeIDs = (number[] | undefined);
 const freeResponseIDs: TFreeIDs[] = [[]];
 
 export type TConditionalHandler<
-  TStructure extends MessageStructureType,
+  TStructure extends OneWayMessageStructureType,
   TKey extends keyof TStructure & number>
   = TStructure[TKey] extends ResponseType<any>
   ? (payload: TStructure[TKey]['payload']) => TStructure[TKey]['response']
   : (payload: TStructure[TKey]['payload']) => void;
 
 export const handle = <
-  TStructure extends MessageStructureType,
+  TStructure extends OneWayMessageStructureType,
   TEventKey extends keyof TStructure & number>(
-    context: { onmessage: Window['onmessage'] | Worker['onmessage'] },
+    context: TContext,
     event: TEventKey,
     handler: TConditionalHandler<TStructure, TEventKey>
   ) => {
@@ -39,14 +39,14 @@ export const handle = <
 }
 
 type TConditionalResponder<
-  TStructure extends MessageStructureType,
+  TStructure extends OneWayMessageStructureType,
   TKey extends keyof TStructure & number>
   = TStructure[TKey] extends ResponseType<any>
   ? (response: TStructure[TKey]['response']) => void
   : never;
 
 export const addResponseHandler = <
-  TStructure extends MessageStructureType,
+  TStructure extends OneWayMessageStructureType,
   TEventKey extends keyof TStructure & number>(
     context: TContext,
     event: TEventKey,
@@ -74,7 +74,6 @@ export const addResponseHandler = <
 
   responseHandlers[event]?.push(handler);
   return responseHandlers[event]?.length ?? -1;
-
 }
 
 const enum EMessageType {
@@ -119,7 +118,6 @@ const messageHandler = (ev: MessageEvent<TPostedMessage>): void => {
       : EMessageType.Call
     : EMessageType.OneWay
 
-  console.log('hi');
   validate(messageType, event);
 
   switch (messageType) {

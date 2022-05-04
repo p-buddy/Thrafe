@@ -1,8 +1,10 @@
-import type { DefineMessageStructure } from './thrafe/messageStructure';
+import type { DefineOneWayMessageStructure } from './thrafe/messageStructure';
 export const enum EWorkerToMain {
-  dummy
+  dummy,
+  responseful
 }
 
-export type WorkerToMain = DefineMessageStructure<EWorkerToMain, {
-  [EWorkerToMain.dummy]: { payload: undefined }
+export type WorkerToMain = DefineOneWayMessageStructure<EWorkerToMain, {
+  [EWorkerToMain.dummy]: { payload: number },
+  [EWorkerToMain.responseful]: { payload: number, response: number }
 }>;

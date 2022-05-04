@@ -19,6 +19,26 @@
             (_a = messageHandlers[event]) === null || _a === void 0 ? void 0 : _a.push(handler);
         }
     };
+    var addResponseHandler = function (context, event, handler) {
+        var _a, _b, _c, _d, _e;
+        if (context.onmessage === null) {
+            context.onmessage = messageHandler;
+        }
+        while (responseHandlers.length <= event) {
+            responseHandlers.push(undefined);
+        }
+        if (responseHandlers[event] === undefined) {
+            responseHandlers[event] = [handler];
+            return 0;
+        }
+        if (freeResponseIDs.length > event && ((_b = (_a = freeResponseIDs[event]) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0) > 0) {
+            var id = freeResponseIDs[event].pop();
+            responseHandlers[event][id] = handler;
+            return id;
+        }
+        (_c = responseHandlers[event]) === null || _c === void 0 ? void 0 : _c.push(handler);
+        return (_e = (_d = responseHandlers[event]) === null || _d === void 0 ? void 0 : _d.length) !== null && _e !== void 0 ? _e : -1;
+    };
     var validate = function (msgType, event) {
         var _a, _b, _c;
         switch (msgType) {
@@ -55,7 +75,6 @@
                 ? 2 /* Response */
                 : 1 /* Call */
             : 0 /* OneWay */;
-        console.log('hi');
         validate(messageType, event);
         switch (messageType) {
             case 0 /* OneWay */:
@@ -75,11 +94,23 @@
         }
     };
 
+    var dispatch = function (context, event, payload) {
+        var onResponse = [];
+        for (var _i = 3; _i < arguments.length; _i++) {
+            onResponse[_i - 3] = arguments[_i];
+        }
+        onResponse.length > 0
+            ? context.postMessage({ event: event, payload: payload, responseID: addResponseHandler(context, event, onResponse[0]) })
+            : context.postMessage({ event: event, payload: payload });
+    };
+
     handle(self, 1 /* GetSquare */, function (value) {
         return value * value;
     });
     handle(self, 0 /* SayHi */, function (name) {
         console.log(name);
+        dispatch(self, 0 /* dummy */, -1);
     });
+    dispatch(self, 0 /* dummy */, 666);
 
 })();

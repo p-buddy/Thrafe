@@ -1,16 +1,16 @@
 import type TContext from './TContext';
 import { addResponseHandler } from "./messageHandling";
-import type { MessageStructureType, ResponseType, TPostedMessage } from "./messageStructure";
+import type { OneWayMessageStructureType, ResponseType, TPostedMessage } from "./messageStructure";
 
 export type TOnResponse<
-  TStructure extends MessageStructureType,
+  TStructure extends OneWayMessageStructureType,
   TEventKey extends keyof TStructure & number> =
   TStructure[TEventKey] extends ResponseType<any>
   ? [(response: TStructure[TEventKey]['response']) => void]
   : [];
 
 export const dispatch = <
-  TStructure extends MessageStructureType,
+  TStructure extends OneWayMessageStructureType,
   TEventKey extends keyof TStructure & number>(
     context: TContext,
     event: TEventKey,

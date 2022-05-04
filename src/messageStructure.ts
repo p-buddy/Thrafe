@@ -4,24 +4,24 @@ export type Context = Window;
 
 type TMessageConfig = PayloadType<any> | (PayloadType<any> & ResponseType<any>);
 
-export type MessageStructureType = { [k: number]: TMessageConfig }
+export type OneWayMessageStructureType = { [k: number]: TMessageConfig }
 
 export type ThreadMessageType = {
   Name: string,
-  ToThread: MessageStructureType,
-  FromThread: MessageStructureType,
+  ToThread: OneWayMessageStructureType,
+  FromThread: OneWayMessageStructureType,
 }
 
-export type DefineMessageStructure<
+export type DefineOneWayMessageStructure<
   TEvents extends number,
-  T extends MessageStructureType & Record<TEvents, TMessageConfig>
+  T extends OneWayMessageStructureType & Record<TEvents, TMessageConfig>
   > = T;
 
-export type DefineThreadMessaging<
-  CompiledName extends string,
-  TToThread extends MessageStructureType,
-  TFromThread extends MessageStructureType> = {
-    Name: CompiledName,
+export type DefineThread<
+  TName extends string,
+  TToThread extends OneWayMessageStructureType,
+  TFromThread extends OneWayMessageStructureType> = {
+    Name: TName,
     ToThread: TToThread,
     FromThread: TFromThread,
   }
