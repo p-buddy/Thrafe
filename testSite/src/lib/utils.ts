@@ -15,3 +15,13 @@ export function longFunction() {
   }
   console.log('done');
 }
+
+const modulus = 2 ** 32;
+const a = 1664525;
+const c = 1013904223;
+
+export function getRandomSeeded(seed: number) {
+  const returnVal = seed / modulus;
+  seed = (a * seed + c) % modulus;
+  return returnVal;
+}

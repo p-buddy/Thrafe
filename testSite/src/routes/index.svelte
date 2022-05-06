@@ -17,19 +17,27 @@
       },
     });
 
-    const cases = 10;
+    const cases = 100;
+    const groupSize = cases / 2;
     const bases = Array.from(Array(cases).keys()).map((i) => i);
     const squares = bases.map((n) => n * n);
-    const results = await Promise.all(
-      bases.map((n) => thread.resolve(EMainToWorker.GetSquare, n))
+    const promises = bases.map((n) =>
+      thread.resolve(EMainToWorker.GetSquare, n)
     );
 
-    for (let index = 0; index < results.length; index++) {
+    const group1 = promises.slice(0, groupSize);
+    const results1 = await Promise.all(group1);
+
+    for (let index = 0; index < results1.length; index++) {
       console.assert(
-        results[index] === squares[index],
-        `Results did not match for index ${index}: ${results[index]} !== ${squares[index]}`
+        results1[index] === squares[index],
+        `Results did not match for index ${index}: ${group1[index]} !== ${squares[index]}`
       );
     }
+
+    // dispatch another round
+
+    // await for second & third group to end
   });
 </script>
 
