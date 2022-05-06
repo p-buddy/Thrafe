@@ -7,7 +7,7 @@
   import { EWorkerToMain } from "$lib/workerToMain";
   import { longFunction } from "$lib/utils";
 
-  onMount(() => {
+  onMount(async () => {
     const thread = new Thread<Structure>("workerUnderTest", {
       [EWorkerToMain.dummy]: (p) => {
         console.log(p);
@@ -17,14 +17,19 @@
       },
     });
 
-    // const x = await thread.resolve(EMainToWorker.GetSquare, 16);
+    const cases = 10;
+    const bases = Array.from(Array(cases).keys()).map((i) => i);
+    const squares = bases.map((n) => n * n);
+    const results = await Promise.all(
+      bases.map((n) => thread.resolve(EMainToWorker.GetSquare, n))
+    );
 
-    thread.dispatch(EMainToWorker.GetSquare, 16, (r: number) => {
-      thread.handle<EWorkerToMain.dummy>(EWorkerToMain.dummy, () => {
-        console.log("dummy!");
-      });
-      thread.dispatch<EMainToWorker.SayHi>(EMainToWorker.SayHi, "goober");
-    });
+    for (let index = 0; index < results.length; index++) {
+      console.assert(
+        results[index] === squares[index],
+        `Results did not match for index ${index}: ${results[index]} !== ${squares[index]}`
+      );
+    }
   });
 </script>
 

@@ -1,6 +1,6 @@
 import type TContext from './TContext';
 import { addResponseHandler } from "./messageHandling";
-import type { OneWayMessageStructureType, ResponseType, TPostedMessage } from "./messageStructure";
+import type { OneWayMessageStructureType, ResponseType, TPostedMessage, TwoWayEvents } from "./messageStructure";
 
 export type TOnResponse<
   TStructure extends OneWayMessageStructureType,
@@ -22,14 +22,20 @@ export const dispatch = <
     : context.postMessage({ event, payload } as TPostedMessage);
 }
 
-/*
+type TConditionalResponse<
+  TStructure extends OneWayMessageStructureType,
+  TKey extends keyof TStructure & number>
+  = TStructure[TKey] extends ResponseType<any>
+  ? TStructure[TKey]['response']
+  : never;
+
 export const resolve = async <
   TStructure extends OneWayMessageStructureType,
-  TEventKey extends keyof TStructure & number > (
+  TEventKey extends TwoWayEvents<TStructure>>(
     context: TContext,
-      event: TEventKey,
-        payload: TStructure[TEventKey]['payload'],
-  ...onResponse: TOnResponse<TStructure, TEventKey>): Promise<TStructure[TEventKey]['response']> => {
-
+    event: TEventKey,
+    payload: TStructure[TEventKey]['payload']): Promise<TConditionalResponse<TStructure, TEventKey>> => {
+  return new Promise((resolve) => {
+    context.postMessage({ event, payload, responseID: addResponseHandler<TStructure, TEventKey>(context, event, resolve as any) } as TPostedMessage);
+  });
 }
-*/

@@ -7,7 +7,10 @@ import { dispatch } from "./thrafe/messageDispatching";
 
 export type Structure = DefineThread<"workerUnderTest", MainToWorker, WorkerToMain>;
 
-handle<MainToWorker, EMainToWorker.GetSquare>(self, EMainToWorker.GetSquare, (value: number) => {
+handle<MainToWorker, EMainToWorker.GetSquare>(self, EMainToWorker.GetSquare, async (value: number) => {
+  const waitTime = Math.random() * 1000 + 1000;
+  console.log(`Waiting ${waitTime / 1000}s to compute square of ${value}`);
+  await new Promise(resolve => setTimeout(resolve, waitTime));
   return value * value;
 });
 

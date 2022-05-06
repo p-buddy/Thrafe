@@ -1,17 +1,12 @@
-import type { OneWayMessageStructureType, PayloadType, ResponseType, ThreadMessageType as ThreadStructure } from './messageStructure';
-import { dispatch } from './messageDispatching';
+import type { AsNumber, OneWayEvents, ThreadMessageType as ThreadStructure, TwoWayEvents } from './messageStructure';
+import { dispatch, resolve } from './messageDispatching';
 import type { TOnResponse } from './messageDispatching';
 import { handle } from './messageHandling';
 import type { TConditionalHandler } from './messageHandling';
 
-type AsNumber<T> = T & number;
-type HandlerCollection<T extends ThreadStructure> = {
+export type HandlerCollection<T extends ThreadStructure> = {
   [Key in keyof T['FromThread']]:
   TConditionalHandler<T['FromThread'], AsNumber<Key>> };
-type TKeysNotMatching<TBase, TQueryType> = {
-  [K in keyof TBase]-?: TBase[K] extends TQueryType ? never : K
-}[keyof TBase];
-type OneWayEvents<T extends ThreadStructure> = number & TKeysNotMatching<T['FromThread'], ResponseType<any>>;
 
 class Thread<T extends ThreadStructure> {
   private src: string;
@@ -39,16 +34,23 @@ class Thread<T extends ThreadStructure> {
     dispatch(this.worker, event, payload, ...onResponse);
   }
 
-  handle<TEventKey extends OneWayEvents<T>>(event: TEventKey, handler: TConditionalHandler<T['FromThread'], TEventKey>) {
+  async resolve<TEventKey extends TwoWayEvents<T['ToThread']>>(
+    event: TEventKey,
+    payload: T['ToThread'][TEventKey]['payload'],
+  ) {
+    return resolve(this.worker, event, payload);
+  }
+
+  handle<TEventKey extends OneWayEvents<T['FromThread']>>(event: TEventKey, handler: TConditionalHandler<T['FromThread'], TEventKey>) {
     handle(this.worker, event, handler);
   }
 
-  terminate() {
+  close() {
     this.worker.terminate();
   }
 
   restart() {
-    this.terminate();
+    this.close();
     const worker = new Worker(this.src);
     Thread.applyHandlers<T>(worker, this.handlers);
     this.worker = worker;
