@@ -4,11 +4,18 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "compile:ts": "node_modules/.bin/tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/p-buddy/Thrafe.git"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.32",
+    "rollup": "^2.71.1",
+    "tslib": "^2.3.1",
+    "typescript": "~4.6.2"
   },
   "author": "",
   "license": "ISC",

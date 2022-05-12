@@ -6,7 +6,7 @@ type TMessageConfig = PayloadType<any> | (PayloadType<any> & ResponseType<any>);
 
 export type OneWayMessageStructureType = { [k: number]: TMessageConfig }
 
-export type ThreadMessageType = {
+export type ThreadArchitectureType = {
   Name: string,
   ToThread: OneWayMessageStructureType,
   FromThread: OneWayMessageStructureType,

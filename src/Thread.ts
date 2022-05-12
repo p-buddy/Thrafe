@@ -1,30 +1,20 @@
-import type { AsNumber, OneWayEvents, ThreadMessageType as ThreadStructure, TwoWayEvents } from './messageStructure';
+import type { AsNumber, OneWayEvents, ThreadArchitectureType as ThreadStructure, TwoWayEvents } from './messageStructure';
 import { dispatch, resolve } from './messageDispatching';
 import type { TOnResponse } from './messageDispatching';
-import { handle } from './messageHandling';
+import { handle, initHandlers, type HandlerCollection } from './messageHandling';
 import type { TConditionalHandler } from './messageHandling';
-
-export type HandlerCollection<T extends ThreadStructure> = {
-  [Key in keyof T['FromThread']]:
-  TConditionalHandler<T['FromThread'], AsNumber<Key>> };
 
 class Thread<T extends ThreadStructure> {
   private src: string;
   private worker: Worker;
-  private handlers: HandlerCollection<T>;
+  private handlers: HandlerCollection<T, "FromThread">;
 
-  constructor(workerName: T['Name'], handlers: HandlerCollection<T>) {
+  constructor(workerName: T['Name'], handlers: HandlerCollection<T, "FromThread">) {
     this.src = `${workerName}.js`;
     this.handlers = handlers;
     const worker = new Worker(this.src);
-    Thread.applyHandlers<T>(worker, handlers);
+    initHandlers<T, "FromThread">(worker, handlers);
     this.worker = worker;
-  }
-
-  private static applyHandlers<T extends ThreadStructure>(worker: Worker, handlers: HandlerCollection<T>) {
-    for (const key in handlers) {
-      handle(worker, parseInt(key), handlers[key]);
-    }
   }
 
   dispatch<TEventKey extends keyof T['ToThread'] & number>(
@@ -52,7 +42,7 @@ class Thread<T extends ThreadStructure> {
   restart() {
     this.close();
     const worker = new Worker(this.src);
-    Thread.applyHandlers<T>(worker, this.handlers);
+    initHandlers(worker, this.handlers);
     this.worker = worker;
   }
 }

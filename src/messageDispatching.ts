@@ -18,7 +18,7 @@ export const dispatch = <
     ...onResponse: TOnResponse<TStructure, TEventKey>
   ) => {
   onResponse.length > 0
-    ? context.postMessage({ event, payload, responseID: addResponseHandler<TStructure, TEventKey>(context, event, onResponse[0] as any) } as TPostedMessage)
+    ? context.postMessage({ event, payload, responseID: addResponseHandler<TStructure, TEventKey>(event, onResponse[0] as any) } as TPostedMessage)
     : context.postMessage({ event, payload } as TPostedMessage);
 }
 
@@ -36,6 +36,6 @@ export const resolve = async <
     event: TEventKey,
     payload: TStructure[TEventKey]['payload']): Promise<TConditionalResponse<TStructure, TEventKey>> => {
   return new Promise((resolve) => {
-    context.postMessage({ event, payload, responseID: addResponseHandler<TStructure, TEventKey>(context, event, resolve as any) } as TPostedMessage);
+    context.postMessage({ event, payload, responseID: addResponseHandler<TStructure, TEventKey>(event, resolve as any) } as TPostedMessage);
   });
 }

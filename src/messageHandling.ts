@@ -1,5 +1,5 @@
 import type TContext from './TContext';
-import type { OneWayMessageStructureType, ResponseType, TPostedMessage } from "./messageStructure";
+import type { AsNumber, OneWayMessageStructureType, ResponseType, ThreadArchitectureType, TKeysMatching, TPostedMessage } from "./messageStructure";
 
 type THandlers = Function[] | undefined;
 const messageHandlers: THandlers[] = [[]];
@@ -17,6 +17,22 @@ export type TConditionalHandler<
   ? (payload: TStructure[TKey]['payload']) => TPromiseOrNot<TStructure[TKey]['response']>
   : (payload: TStructure[TKey]['payload']) => TPromiseOrNot<void>;
 
+export type HandlerCollection<TArchitecture extends ThreadArchitectureType, TDirection extends TKeysMatching<ThreadArchitectureType, OneWayMessageStructureType>> = {
+  [Key in keyof TArchitecture[TDirection]]:
+  TConditionalHandler<TArchitecture[TDirection], AsNumber<Key>> };
+
+export const initHandlers = <
+  T extends ThreadArchitectureType,
+  TDirection extends TKeysMatching<
+    ThreadArchitectureType,
+    OneWayMessageStructureType>>
+  (context: TContext, handlers: HandlerCollection<T, TDirection>) => {
+  context.onmessage = messageHandler;
+  for (const key in handlers) {
+    handle(context, parseInt(key), handlers[key]);
+  }
+}
+
 export const handle = <
   TStructure extends OneWayMessageStructureType,
   TEventKey extends keyof TStructure & number>(
@@ -24,7 +40,6 @@ export const handle = <
     event: TEventKey,
     handler: TConditionalHandler<TStructure, TEventKey>
   ) => {
-  context.onmessage ?? (context.onmessage = messageHandler);
   while (messageHandlers.length <= event) messageHandlers.push(undefined);
   messageHandlers[event]?.push(handler) ?? (messageHandlers[event] = [handler]);
 }
@@ -39,11 +54,9 @@ type TConditionalResponder<
 export const addResponseHandler = <
   TStructure extends OneWayMessageStructureType,
   TEventKey extends keyof TStructure & number>(
-    context: TContext,
     event: TEventKey,
     handler: TConditionalResponder<TStructure, TEventKey>
   ): number => {
-  context.onmessage ?? (context.onmessage = messageHandler);
   while (responseHandlers.length <= event) responseHandlers.push(undefined);
   const arr = responseHandlers[event] as Function[];
   if (!arr) {

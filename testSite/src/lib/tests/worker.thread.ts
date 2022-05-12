@@ -1,14 +1,18 @@
-import type { DefineOneWayMessageStructure } from './thrafe/messageStructure';
+import { initHandlers } from "$lib/thrafe/messageHandling";
+import type { DefineOneWayMessageStructure, DefineThread } from "$lib/thrafe/messageStructure";
+
 export const enum EMainToWorker {
-  SayHi,
   GetSquare,
   GetCube,
   Divide,
 }
 
 export type MainToWorker = DefineOneWayMessageStructure<EMainToWorker, {
-  [EMainToWorker.SayHi]: { payload: string },
   [EMainToWorker.GetSquare]: { payload: number, response: number },
   [EMainToWorker.GetCube]: { payload: number, response: number },
   [EMainToWorker.Divide]: { payload: { dividend: number, divisor: number }, response: number },
 }>;
+
+export type Structure = DefineThread<"workerUnderTest", MainToWorker, never>;
+
+//initHandlers<Structure, "ToThread">(self, {});

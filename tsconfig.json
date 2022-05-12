@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "outDir": "temp",
+    "moduleResolution": "node"
+  },
+  "files": [
+    "cli/cli.ts"
+  ],
+}
