@@ -1,4 +1,4 @@
-import type { AsNumber, OneWayEvents, ThreadArchitectureType as ThreadStructure, TwoWayEvents } from './messageStructure';
+import type { OneWayEvents, ThreadArchitectureType as ThreadStructure, TwoWayEvents } from './messageStructure';
 import { dispatch, resolve } from './messageDispatching';
 import type { TOnResponse } from './messageDispatching';
 import { handle, initHandlers, type HandlerCollection } from './messageHandling';
