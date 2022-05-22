@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "CommonJS",
-    "outDir": "temp",
+    "outDir": "cli",
     "moduleResolution": "node"
   },
   "files": [
