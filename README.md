@@ -7,7 +7,36 @@ This is a library that aims to make it simple and straightforward to make typesa
 
 ## Why?
 
-When working on my [CommunicativeCode](https://github.com/p-buddy/CommunicativeCode) webapp, I found it tricky to use both Typescript and web workers for the following reasons. 
+When working on my [CommunicativeCode](https://github.com/p-buddy/CommunicativeCode) webapp, I found it tricky to use both Typescript and web workers for reasons I outline further below.
+
+## Usage
+
+### Worker code
+```ts
+```
+
+### Component code
+
+#### Svelte
+
+```ts
+```
+
+#### React
+
+...TBD...
+
+#### Vue
+
+...TBD...
+
+## How it works
+
+...TBD...
+
+## State of things
+
+## Why? (cont.)
 
 ### Where / how should types fit it in?
 

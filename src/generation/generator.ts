@@ -1,78 +1,14 @@
-#! /usr/bin/env node
 import * as ts from "typescript";
 import { rollup } from "rollup";
+import * as glob from "glob";
 import * as fs from "fs";
 import * as path from "path";
-import * as string_similiarity from "string-similarity";
+import { getFileWithSameNameInOtherDirectory, tryDeleteDirectory } from "./fileSystemHelper";
+import { EFailure, TAttempt, reportFailure } from "./errorHandling";
 
 const root = process.cwd();
 const tempDir = path.join(root, "thrafe_temp");
 const typeDef = "DefineThread";
-
-const enum EFailure {
-  None,
-  NoDefineThread,
-  MultipleDefineThread,
-  TranspilationError,
-  BundlingError,
-  UnableToLocateTranspiledFile,
-  UnableToLocateOutputDir,
-  UnableToLocateOutputBundledFile,
-}
-
-type TAttempt<TValue> = {
-  success: boolean,
-  failure?: EFailure,
-  value?: TValue
-}
-
-function reportError(failure: EFailure, workerFile: string): boolean {
-  switch (failure) {
-    case EFailure.NoDefineThread:
-      break;
-    case EFailure.MultipleDefineThread:
-      break;
-  }
-  return false;
-}
-
-function tryDeleteDirectory(dir: string): boolean {
-  if (!fs.existsSync(dir)) return true;
-  try {
-    fs.rmSync(dir, { recursive: true, force: true });
-    return true;
-  }
-  catch {
-    console.error("Unable to delete directory: ", dir);
-    return false;
-  }
-}
-
-const removeJsTsExtension = (file: string): string => file.replace(".ts", "").replace(".js", "");
-const fileNameNoExtension = (file: string): string => removeJsTsExtension(path.parse(file).base);
-
-function getAllFilesFromDirectory(fullPathToDir: string): string[] {
-  let files = [];
-  fs.readdirSync(fullPathToDir).forEach(file => {
-    const fullPath = path.join(fullPathToDir, file);
-    if (fs.statSync(fullPath).isDirectory()) {
-      files.push(...getAllFilesFromDirectory(fullPath));
-    } else {
-      files.push(fullPath);
-    }
-  });
-  return files;
-}
-
-function getFileWithSameNameInDirectory(fullPathToDir: string, file: string): string | undefined {
-  const fileNameChecked = fileNameNoExtension(file);
-  const matching = getAllFilesFromDirectory(fullPathToDir).filter(filePath => fileNameNoExtension(filePath) === fileNameChecked);
-  if (matching.length === 1) return matching[0];
-  if (matching.length === 0) return undefined;
-  const pathToFileName = path.join(path.parse(file).dir, fileNameChecked);
-  const { bestMatchIndex } = string_similiarity.findBestMatch(pathToFileName, matching);
-  return bestMatchIndex >= 0 && bestMatchIndex < matching.length ? matching[bestMatchIndex] : undefined;
-}
 
 const isDefineThreadType = (type: ts.Type) => (type as ts.TypeReference).target?.aliasSymbol?.name === typeDef;
 const getThreadNameForType = (type: ts.Type) => (type as any).mapper.targets[0].value;
@@ -104,7 +40,8 @@ function tryRetrieveThreadIdentifier(program: ts.Program): TAttempt<string> {
   return attempt;
 }
 
-function logDiagnostics(program: ts.Program, result: ts.EmitResult) {
+function tryEmitProgram(program: ts.Program): TAttempt<never> {
+  let result = program.emit();
   ts.getPreEmitDiagnostics(program)
     .concat(result.diagnostics)
     .forEach(diagnostic => {
@@ -113,11 +50,6 @@ function logDiagnostics(program: ts.Program, result: ts.EmitResult) {
       const { line, character } = ts.getLineAndCharacterOfPosition(diagnostic.file, diagnostic.start!);
       console.log(`${diagnostic.file.fileName} (${line + 1},${character + 1}): ${flattenedMessage}`);
     });
-}
-
-function tryEmitProgram(program: ts.Program): TAttempt<never> {
-  let result = program.emit();
-  logDiagnostics(program, result);
   return {
     success: !result.emitSkipped,
     failure: !result.emitSkipped ? EFailure.None : EFailure.TranspilationError
@@ -126,7 +58,7 @@ function tryEmitProgram(program: ts.Program): TAttempt<never> {
 
 async function tryBundleThreadAsWorker(entry: string, outputName: string, outputDir: string): Promise<TAttempt<never>> {
   if (!fs.existsSync(outputDir)) return { success: false, failure: EFailure.UnableToLocateOutputDir };
-  const input = getFileWithSameNameInDirectory(tempDir, entry);
+  const input = getFileWithSameNameInOtherDirectory(tempDir, entry);
   if (input === undefined) return { success: false, failure: EFailure.UnableToLocateTranspiledFile };
   const outputFile = path.join(outputDir, `${outputName}.js`);
   try {
@@ -147,18 +79,28 @@ async function tryBundleThreadAsWorker(entry: string, outputName: string, output
 async function tryTranspileAndBundle(entryTsFile: string, outDir: string, options: ts.CompilerOptions): Promise<boolean> {
   const program = ts.createProgram([entryTsFile], options);
   const identifier = tryRetrieveThreadIdentifier(program);
-  if (!identifier.success) return reportError(identifier.failure, entryTsFile);
+  if (!identifier.success) return reportFailure(identifier.failure, entryTsFile);
   const emit = tryEmitProgram(program);
-  if (!emit.success) return reportError(emit.failure, entryTsFile);
+  if (!emit.success) return reportFailure(emit.failure, entryTsFile);
   const bundling = await tryBundleThreadAsWorker(entryTsFile, identifier.value, outDir);
-  if (!bundling.success) return reportError(bundling.failure, entryTsFile);
+  if (!bundling.success) return reportFailure(bundling.failure, entryTsFile);
   return true;
 }
 
-async function compile(workerFiles: string[], outDir: string, options: ts.CompilerOptions) {
+export type Options = Omit<ts.CompilerOptions, "outDir" | "noEmitOnError" | "inlineSourceMap">;
+
+export async function generateWorkerThreadAssets(workerFiles: string[], options: Options, assetDir: string) {
   if (!tryDeleteDirectory(tempDir)) return;
+
+  const combinedOptions: ts.CompilerOptions = {
+    ...options,
+    outDir: tempDir,
+    noEmitOnError: true,
+    inlineSourceMap: true,
+  };
+
   for (const workerFile of workerFiles) {
-    const result = tryTranspileAndBundle(workerFile, outDir, options);
+    const result = await tryTranspileAndBundle(workerFile, assetDir, combinedOptions);
     if (result && !tryDeleteDirectory(tempDir)) {
       console.error(`Unable to clear out temp directory: ${tempDir}. Exiting early.`);
       return;
@@ -170,6 +112,14 @@ async function compile(workerFiles: string[], outDir: string, options: ts.Compil
   }
 }
 
+export async function generateAssetsForGlob(globPattern: string, options: Options, assetDir: string) {
+  glob(globPattern, (err, files) => {
+    if (err) return console.error("Supplied glob pattern resulted in the following error: ", err);
+    generateWorkerThreadAssets(files, options, assetDir);
+  });
+}
+
+/*
 compile(process.argv.slice(2), root, {
   outDir: tempDir,
   noEmitOnError: true,
@@ -185,4 +135,4 @@ compile(process.argv.slice(2), root, {
       "./testSite/src/lib/*"
     ],
   }
-});
+});*/

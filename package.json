@@ -1,10 +1,15 @@
 {
   "name": "thrafe",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.0.0",
+  "description": "A typescript library to help you get the most out of multithreading in the browser using web workers",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "/dist"
+  ],
   "scripts": {
-    "compile:ts": "node_modules/.bin/tsc",
+    "compile": "node_modules/.bin/tsc",
+    "publish": "npm run compile && npm publish",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -13,14 +18,15 @@
   },
   "devDependencies": {
     "@types/node": "^17.0.32",
+    "glob": "^8.0.3",
+    "install": "^0.13.0",
+    "npm": "^8.10.0",
     "rollup": "^2.71.1",
-    "string-similarity": "^4.0.4",
-    "@types/string-similarity": "^4.0.0",
     "tslib": "^2.3.1",
     "typescript": "~4.6.2"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Parker Malachowsky",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/p-buddy/Thrafe/issues"
   },

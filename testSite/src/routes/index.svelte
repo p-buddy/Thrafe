@@ -2,13 +2,13 @@
   import { EMainToWorker } from "$lib/mainToWorker";
   import type { MainToWorker } from "$lib/mainToWorker";
   import { onMount } from "svelte";
-  import Thread from "$lib/thrafe/Thread";
+  import Thread from "$lib/thrafe/development/Thread";
   import type { Structure } from "$lib/workerUnderTest";
   import { EWorkerToMain } from "$lib/workerToMain";
   import { longFunction } from "$lib/utils";
 
   onMount(async () => {
-    const thread = new Thread<Structure>("workerUnderTest", {
+    const thread = new Thread<Structure>("testWorker", {
       [EWorkerToMain.dummy]: (p) => {
         console.log(p);
       },

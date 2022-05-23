@@ -4,7 +4,7 @@ import type { TOnResponse } from './messageDispatching';
 import { handle, initHandlers, type HandlerCollection } from './messageHandling';
 import type { TConditionalHandler } from './messageHandling';
 
-class Thread<T extends ThreadStructure> {
+export class Thread<T extends ThreadStructure> {
   private src: string;
   private worker: Worker;
   private handlers: HandlerCollection<T, "FromThread">;
@@ -47,4 +47,3 @@ class Thread<T extends ThreadStructure> {
   }
 }
 
-export default Thread;

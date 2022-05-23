@@ -1,11 +1,10 @@
-import { EMainToWorker } from "./mainToWorker";
-import type { MainToWorker } from "./mainToWorker";
-import { handle, initHandlers } from "./thrafe/messageHandling";
-import type { DefineThread } from "./thrafe/messageStructure";
+import { EMainToWorker, type MainToWorker } from "./mainToWorker";
 import { EWorkerToMain, type WorkerToMain } from "./workerToMain";
-import { dispatch } from "./thrafe/messageDispatching";
+import { initHandlers } from "./thrafe/development/messageHandling";
+import type { DefineThread } from "./thrafe/development/messageStructure";
+import { dispatch } from "./thrafe/development/messageDispatching";
 
-export type Structure = DefineThread<"workerUnderTest", MainToWorker, WorkerToMain>;
+export type Structure = DefineThread<"testWorker", MainToWorker, WorkerToMain>;
 
 initHandlers<Structure, "ToThread">(self, {
   [EMainToWorker.GetSquare]: async (value: number) => {
