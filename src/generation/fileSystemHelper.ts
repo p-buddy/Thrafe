@@ -16,7 +16,7 @@ export function tryDeleteDirectory(dir: string, succeedIfDirDoesNotExist: boolea
 export function getAllFilesFromDirectory(fullPathToDir: string): string[] {
   let files = [];
   fs.readdirSync(fullPathToDir).forEach(file => {
-    const fullPath = path.join(fullPathToDir, file);
+    const fullPath = path.resolve(fullPathToDir, file);
     if (fs.statSync(fullPath).isDirectory()) {
       files.push(...getAllFilesFromDirectory(fullPath));
     } else {
@@ -31,7 +31,7 @@ const jsExt = ".js";
 const removeJsTsExtension = (file: string): string => file.replace(tsExt, "").replace(jsExt, "");
 const fileNameWithoutCodeExtension = (file: string): string => removeJsTsExtension(path.parse(file).base);
 
-export function getFileWithSameNameInOtherDirectory(fullPathToDir: string, fullPathToFile: string): string | undefined {
+export function getFileWithSameBaseNameInOtherDirectory(fullPathToDir: string, fullPathToFile: string): string | undefined {
   const fileName = fileNameWithoutCodeExtension(fullPathToFile);
   const matching = getAllFilesFromDirectory(fullPathToDir).filter(filePath => fileNameWithoutCodeExtension(filePath) === fileName);
   if (matching.length === 1) return matching[0];

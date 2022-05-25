@@ -3,7 +3,7 @@ import { rollup } from "rollup";
 import * as glob from "glob";
 import * as fs from "fs";
 import * as path from "path";
-import { getFileWithSameNameInOtherDirectory, tryDeleteDirectory } from "./fileSystemHelper";
+import { getFileWithSameBaseNameInOtherDirectory, tryDeleteDirectory } from "./fileSystemHelper";
 import { EFailure, TAttempt, reportFailure } from "./errorHandling";
 
 const root = process.cwd();
@@ -58,7 +58,7 @@ function tryEmitProgram(program: ts.Program): TAttempt<never> {
 
 async function tryBundleThreadAsWorker(entry: string, outputName: string, outputDir: string): Promise<TAttempt<never>> {
   if (!fs.existsSync(outputDir)) return { success: false, failure: EFailure.UnableToLocateOutputDir };
-  const input = getFileWithSameNameInOtherDirectory(tempDir, entry);
+  const input = getFileWithSameBaseNameInOtherDirectory(tempDir, entry);
   if (input === undefined) return { success: false, failure: EFailure.UnableToLocateTranspiledFile };
   const outputFile = path.join(outputDir, `${outputName}.js`);
   try {
