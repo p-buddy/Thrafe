@@ -1,5 +1,5 @@
-import type TContext from './TContext';
-import type { AsNumber, OneWayMessageStructureType, ResponseType, ThreadArchitectureType, TKeysMatching, TPostedMessage } from "./messageStructure";
+import type TScope from './TScope';
+import type { AsNumber, OneWayMessageStructureType, Response, ThreadArchitectureType, TKeysMatching, TPostedMessage } from "./messageStructure";
 
 type THandlers = Function[] | undefined;
 const messageHandlers: THandlers[] = [[]];
@@ -13,7 +13,7 @@ type TPromiseOrNot<T> = T | Promise<T>;
 export type TConditionalHandler<
   TStructure extends OneWayMessageStructureType,
   TKey extends keyof TStructure & number>
-  = TStructure[TKey] extends ResponseType<any>
+  = TStructure[TKey] extends Response<any>
   ? (payload: TStructure[TKey]['payload']) => TPromiseOrNot<TStructure[TKey]['response']>
   : (payload: TStructure[TKey]['payload']) => TPromiseOrNot<void>;
 
@@ -21,22 +21,23 @@ export type HandlerCollection<TArchitecture extends ThreadArchitectureType, TDir
   [Key in keyof TArchitecture[TDirection]]:
   TConditionalHandler<TArchitecture[TDirection], AsNumber<Key>> };
 
+
+
 export const initHandlers = <
   T extends ThreadArchitectureType,
   TDirection extends TKeysMatching<
     ThreadArchitectureType,
-    OneWayMessageStructureType>>
-  (context: TContext, handlers: HandlerCollection<T, TDirection>) => {
-  context.onmessage = messageHandler;
+    OneWayMessageStructureType> = "ToThread">
+  (scope: TScope, handlers: HandlerCollection<T, TDirection>) => {
+  scope.onmessage = messageHandler;
   for (const key in handlers) {
-    handle(context, parseInt(key), handlers[key]);
+    handle(parseInt(key), handlers[key]);
   }
 }
 
 export const handle = <
   TStructure extends OneWayMessageStructureType,
   TEventKey extends keyof TStructure & number>(
-    context: TContext,
     event: TEventKey,
     handler: TConditionalHandler<TStructure, TEventKey>
   ) => {
@@ -47,7 +48,7 @@ export const handle = <
 type TConditionalResponder<
   TStructure extends OneWayMessageStructureType,
   TKey extends keyof TStructure & number>
-  = TStructure[TKey] extends ResponseType<any>
+  = TStructure[TKey] extends Response<any>
   ? (response: TStructure[TKey]['response']) => void
   : never;
 

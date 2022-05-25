@@ -10,7 +10,7 @@
   "scripts": {
     "compile": "node_modules/.bin/tsc",
     "patch": "npm run compile && npm version patch && npm publish",
-    "test": "ts-mocha ./src/**/*.test.ts"
+    "test": "ts-mocha ./src/**/*.test.ts ./src/*.test.ts"
   },
   "repository": {
     "type": "git",

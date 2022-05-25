@@ -1,6 +1,6 @@
 # Thrafe
 
-Pronounced like the name 'Rafe', as in:
+Pronounced like the name [Rafe](https://en.wikipedia.org/wiki/Rafe_(name)#:~:text=Rafe%20is%20a%20given%20name,%22)%20through%20Old%20English%20R%C3%A6dwulf.), as in:
 > My uncle, Thrafe lives in the Cayman Islands.
 
 This is a library that aims to make it simple and straightforward to make typesafe, multithreaded web applications (using [Typescript](https://www.typescriptlang.org/) and [web workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers)) -- hence the annoying name, ***Thrafe***: threading + typesafe. 

@@ -3,6 +3,6 @@ export { generateWorkerThreadAssets, generateAssetsForGlob, type Options } from 
 
 // development exports
 export { initHandlers } from "./development/messageHandling";
-export type { DefineThread } from "./development/messageStructure";
+export type { DefineThread, DefineOneWayMessageStructure } from "./development/messageStructure";
 export { dispatch } from "./development/messageDispatching";
 export { Thread } from "./development/Thread";

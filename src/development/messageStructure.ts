@@ -1,10 +1,10 @@
-export type PayloadType<T> = { payload: T };
-export type ResponseType<T> = { response: T };
-export type Context = Window;
+export type Payload<T> = { payload: T };
+export type Response<T> = { response: T };
+export type Scope = Window;
 
-type TMessageConfig = PayloadType<any> | (PayloadType<any> & ResponseType<any>);
+type TMessageConfig<TPayload, TResponse = never> = Payload<TPayload> | (Payload<TPayload> & Response<TResponse>);
 
-export type OneWayMessageStructureType = { [k: number]: TMessageConfig }
+export type OneWayMessageStructureType = { [k: number]: TMessageConfig<any, any> }
 
 export type ThreadArchitectureType = {
   Name: string,
@@ -14,7 +14,7 @@ export type ThreadArchitectureType = {
 
 export type DefineOneWayMessageStructure<
   TEvents extends number,
-  T extends OneWayMessageStructureType & Record<TEvents, TMessageConfig>
+  T extends OneWayMessageStructureType & Record<TEvents, TMessageConfig<any, any>>
   > = T;
 
 export type DefineThread<
@@ -40,5 +40,5 @@ export type TKeysNotMatching<TBase, TQueryType> = {
   [K in keyof TBase]-?: TBase[K] extends TQueryType ? never : K
 }[keyof TBase];
 
-export type OneWayEvents<T extends OneWayMessageStructureType> = number & TKeysNotMatching<T, ResponseType<any>>;
-export type TwoWayEvents<T extends OneWayMessageStructureType> = number & TKeysMatching<T, ResponseType<any>>;
+export type OneWayEvents<T extends OneWayMessageStructureType> = number & TKeysNotMatching<T, Response<any>>;
+export type TwoWayEvents<T extends OneWayMessageStructureType> = number & TKeysMatching<T, Response<any>>;
