@@ -8,7 +8,7 @@ import { EFailure, TAttempt, reportFailure } from "./errorHandling";
 
 const root = process.cwd();
 const tempDir = path.join(root, "thrafe_temp");
-const typeDef = "DefineThread";
+const typeDef = "DefineThreadArchitecture";
 
 const isDefineThreadType = (type: ts.Type) => (type as ts.TypeReference).target?.aliasSymbol?.name === typeDef;
 const getThreadNameForType = (type: ts.Type) => (type as any).mapper.targets[0].value;
