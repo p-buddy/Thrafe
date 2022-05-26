@@ -11,9 +11,9 @@ When working on my [CommunicativeCode](https://github.com/p-buddy/CommunicativeC
 
 Additionally, existing awesome worker libraries like [Comlink](https://github.com/GoogleChromeLabs/comlink) and [workway](https://github.com/WebReflection/workway) didn't make it easy to accomplish the twoway message passing I needed (i.e. in addition to the main thread talking to the web worker, I also wanted the worker code to be able to talk to the main thread at will*):
 
-*= This is probably also possible through passing callbacks using a 'proxy' mechanism in one of these libraries, but that seems a little hacky
-
 > MainThread ⇄ Worker
+
+*= This is probably also possible through passing callbacks using a 'proxy' mechanism in one of these libraries, but that seems a little hacky
 
 ## A little terminology
 
