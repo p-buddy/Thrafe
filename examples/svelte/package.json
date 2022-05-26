@@ -2,6 +2,7 @@
   "name": "testsite",
   "version": "0.0.1",
   "scripts": {
+    "setup": "npm link ../../ && npm install",
     "compile:worker:ts": "node_modules/.bin/tsc --project tsconfig.worker.json",
     "bundle:worker": "node_modules/.bin/rollup temp/workerUnderTest.js --file static/workerUnderTest.js --format iife",
     "build:worker": "npm run compile:worker:ts && npm run bundle:worker && rm -rf temp",
