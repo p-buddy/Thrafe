@@ -11,7 +11,7 @@ When working on my [CommunicativeCode](https://github.com/p-buddy/CommunicativeC
 
 Additionally, existing awesome worker libraries like (Comlink)[] and (workway)[] didn't make it easy to accomplish the twoway message passing I needed (i.e. I wanted the main thread to talk to the web worker at will, and vice versa):
 
-> MainThread ⤄ Worker
+> MainThread ⇄ Worker
 
 ## Usage
 
