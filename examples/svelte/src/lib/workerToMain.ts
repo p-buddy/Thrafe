@@ -1,4 +1,4 @@
-import type { DefineOneWayMessageStructure } from './thrafe/messageStructure';
+import type { DefineOneWayMessageStructure } from 'thrafe';
 export const enum EWorkerToMain {
   dummy,
   responseful
