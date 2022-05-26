@@ -21,18 +21,34 @@ Additionally, existing awesome worker libraries like [Comlink](https://github.co
 
 This can go in its own `.ts` file, or at the top of the worker file, or wherever you want really! It's just a type definition, so will be [transpiled]() away.
 
-An architecture consists of 5 things:
+An architecture consists of 6 things:
 
-#### 1. **Thread Nanme**:
-A [string literal type definition](https://www.typescriptlang.org/docs/handbook/literal-types.html#string-literal-types) that defines what this thread should be referred to as, and utlimately the name of the file that is created by the [thrafe generator](https://github.com/p-buddy/Thrafe/blob/main/src/generation/generator.ts)
+#### 1. **Thread Name**:
+A [string literal type definition](https://www.typescriptlang.org/docs/handbook/literal-types.html#string-literal-types) that defines what this thread should be referred to as, and utlimately the name of the file that is created by the [thrafe generator](https://github.com/p-buddy/Thrafe/blob/main/src/generation/generator.ts).
+
+For example: 
+```ts
+type MyVerySpecialThreadName = "myWorkerThread";
+```
+
 #### 2. **_To Worker Thread_ Events Enum**: 
 [`const enum`](https://www.typescriptlang.org/docs/handbook/enums.html#const-enums) defining the events where the **MAIN THREAD** calls into a worker thread
+
+For example: 
+```ts
+const enum ToMyVerySpecialThreadEvents {
+  DoSomeWork,
+  FactorTheseNumbers
+}
+```
+
 #### 3. **_To Worker Thread_ Message Structure Definition**:
 blah blah blah
 #### 4. **_To Main Thread_ Events Enum**:
 [`const enum`](https://www.typescriptlang.org/docs/handbook/enums.html#const-enums) defining the events where the **WORKER THREAD** calls into the main thread
 #### 5. **_To Main Thread_ Message Structure Definition**:
 blah blah blah
+#### 5. **Thread Architecture Defintion**
 
 ```ts
 ```
