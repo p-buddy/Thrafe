@@ -13,7 +13,7 @@ Additionally, existing awesome worker libraries like [Comlink](https://github.co
 
 > MainThread ⇄ Worker
 
-_*= This is probably also possible through passing callbacks using a 'proxy' mechanism in one of these libraries, but that seems a little hacky_
+_*= This is probably also possible through passing callbacks using a 'proxy' mechanism in one of these libraries, but that seemed like more indirection than I wanted
 
 ## A little terminology
 
