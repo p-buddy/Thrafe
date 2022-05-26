@@ -13,15 +13,21 @@ Additionally, existing awesome worker libraries like [Comlink](https://github.co
 
 > MainThread ⇄ Worker
 
+## A little terminology
+
 ## Usage
 
 ### Architecture Definition
 
 This can go in its own `.ts` file, or at the top of the worker file, or wherever you want really! It's just a type definition, so will be [transpiled]() away.
 
-An architecture consists of 4 things:
+An architecture consists of 5 things:
 
-- [`const enum`](https://www.typescriptlang.org/docs/handbook/enums.html#const-enums)
+1. **Thread Nanme**: A [string literal type definition](https://www.typescriptlang.org/docs/handbook/literal-types.html#string-literal-types) that defines what this thread should be referred to as, and utlimately the name of the file that is created by the [thrafe generator](https://github.com/p-buddy/Thrafe/blob/main/src/generation/generator.ts)
+2. **_To Worker Thread_ Events Enum**: [`const enum`](https://www.typescriptlang.org/docs/handbook/enums.html#const-enums) defining the events where the **MAIN THREAD** calls into a worker thread
+3. **_To Worker Thread_ Message Structure Definition**: blah blah blah
+4. **_To Main Thread_ Events Enum**: [`const enum`](https://www.typescriptlang.org/docs/handbook/enums.html#const-enums) defining the events where the **WORKER THREAD** calls into the main thread
+5. **_To Main Thread_ Message Structure Definition**: blah blah blah
 
 ```ts
 ```
