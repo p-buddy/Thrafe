@@ -17,6 +17,14 @@ Additionally, existing awesome worker libraries like [Comlink](https://github.co
 
 ## Usage
 
+Using thrafe requires you to do 4 things (3 development steps, and 1 build step):
+1. Define your [Threading Architecture]() using types
+2. Instantiate a [Context]() in your threaded code
+3. Instantiate a [Thread]() in your client / main thread code
+4. Add the thrafe generation step in your application's build steps
+
+Check out the specifics of each step below. 
+
 ### Architecture Definition
 
 This can go in its own `.ts` file, or at the top of the worker file, or wherever you want really! It's just a type definition, so will be [transpiled]() away.
