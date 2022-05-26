@@ -17,7 +17,7 @@ export type DefineOneWayMessageStructure<
   T extends OneWayMessageStructureType & Record<TEvents, TMessageConfig<any, any>>
   > = T;
 
-export type DefineThread<
+export type DefineThreadArchitecture<
   TName extends string,
   TToThread extends OneWayMessageStructureType,
   TFromThread extends OneWayMessageStructureType> = {

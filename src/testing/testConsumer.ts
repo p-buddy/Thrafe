@@ -1,12 +1,12 @@
 import { Thread } from "../development/Thread";
 import { mockWorkerContext } from "./mockWorkerContext";
-import { TTestContext } from "./testingUtility";
-import { FromThreadEvents, Structure, testNumber, ToThreadEvents } from "./testWorker";
+import { dispatched, processResponseAndExpectInContext, TTestContext } from "./testingUtility";
+import { FromThreadEvents, Architecture, testNumber, ToThreadEvents } from "./testingArchitecture";
 
-let thread: Thread<Structure>;
+let thread: Thread<Architecture>;
 export const testContext: TTestContext = {
   init: () => {
-    thread = Thread.Test<Structure>(
+    thread = Thread.Test<Architecture>(
       "testWorkerThread",
       {
         [FromThreadEvents.sendNumberFromThread]: (p) => { testContext.handlings++ },
@@ -21,13 +21,11 @@ export const testContext: TTestContext = {
   },
   test: async () => {
     thread.dispatch(ToThreadEvents.passNumberToThread, testNumber);
-    testContext.dispatches++;
-    await thread.dispatch(ToThreadEvents.passNumberToThreadAndGetItBack, 4, (r) => {
-      //console.log(r);
+    dispatched(testContext);
+    let random = Math.random();
+    await thread.dispatch(ToThreadEvents.passNumberToThreadAndGetItBack, random, (r) => {
+      processResponseAndExpectInContext(testContext, random, r);
     });
-    testContext.dispatches++;
-    testContext.fetches++;
-
   },
   errors: 0,
   dispatches: 0,
