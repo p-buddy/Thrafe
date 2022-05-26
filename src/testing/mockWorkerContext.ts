@@ -1,13 +1,12 @@
-import TScope from "../development/TScope";
+import TScope from "../development/types/TScope";
 import * as chai from 'chai';
 
-export const mockWorkerContext: { worker: Worker, context: TScope } = {
+export const mockWorkerContext: { worker: Worker, scope: TScope } = {
   worker: {
     onmessage: undefined,
     postMessage: (message) => {
-      console.log('w');
       // @ts-ignore
-      mockWorkerContext.context.onmessage({ data: message });
+      mockWorkerContext.scope.onmessage({ data: message });
     },
     addEventListener: undefined,
     removeEventListener: undefined,
@@ -16,10 +15,9 @@ export const mockWorkerContext: { worker: Worker, context: TScope } = {
     dispatchEvent: undefined,
     onerror: undefined
   },
-  context: {
+  scope: {
     onmessage: undefined,
     postMessage: (message) => {
-      console.log('c');
       // @ts-ignore
       mockWorkerContext.worker.onmessage({ data: message });
     }

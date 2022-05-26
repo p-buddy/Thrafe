@@ -6,7 +6,7 @@ type TMessageConfig<TPayload, TResponse = never> = Payload<TPayload> | (Payload<
 
 export type OneWayMessageStructureType = { [k: number]: TMessageConfig<any, any> }
 
-export type ThreadArchitectureType = {
+export type ThreadArchitecture = {
   Name: string,
   ToThread: OneWayMessageStructureType,
   FromThread: OneWayMessageStructureType,
@@ -42,3 +42,11 @@ export type TKeysNotMatching<TBase, TQueryType> = {
 
 export type OneWayEvents<T extends OneWayMessageStructureType> = number & TKeysNotMatching<T, Response<any>>;
 export type TwoWayEvents<T extends OneWayMessageStructureType> = number & TKeysMatching<T, Response<any>>;
+
+export type CommunicationDirection = TKeysMatching<ThreadArchitecture, OneWayMessageStructureType>;
+
+export type MainThreadContext = "MainThread";
+export type WorkerThreadContext = "WorkerThread";
+export type ThreadContext = MainThreadContext | WorkerThreadContext;
+export type HandleDirectionByContext<TContext extends ThreadContext> = keyof ThreadArchitecture & (TContext extends MainThreadContext ? "FromThread" : "ToThread");
+export type DispatchDirectionByContext<TContext extends ThreadContext> = keyof ThreadArchitecture & (TContext extends MainThreadContext ? "ToThread" : "FromThread");

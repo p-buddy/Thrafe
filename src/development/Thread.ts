@@ -1,47 +1,50 @@
-import type { OneWayEvents, ThreadArchitectureType as ThreadStructure, TwoWayEvents } from './messageStructure';
-import { dispatch, resolve } from './messageDispatching';
-import type { TOnResponse } from './messageDispatching';
-import { handle, initHandlers, type HandlerCollection } from './messageHandling';
-import type { TConditionalHandler } from './messageHandling';
-import TScope from './TScope';
+import type { CommunicationDirection, DispatchDirectionByContext, HandleDirectionByContext, OneWayEvents, OneWayMessageStructureType, ThreadArchitecture, TwoWayEvents } from './types/messageStructure';
+import type { TOnResponse } from './types/messageDispatching';
+import type { TConditionalHandler, HandlerCollection } from './types/messageHandling';
+import { Context } from './Context';
 
-export class Thread<T extends ThreadStructure> {
+export class Thread<
+  TArchitecture extends ThreadArchitecture,
+  TDispatchDirection extends CommunicationDirection = DispatchDirectionByContext<"MainThread">,
+  TDispatchers extends OneWayMessageStructureType = TArchitecture[TDispatchDirection],
+  THandleDirection extends CommunicationDirection = HandleDirectionByContext<"MainThread">,
+  THandlers extends OneWayMessageStructureType = TArchitecture[THandleDirection]
+  > {
   private src: string;
   private worker: Worker;
-  private handlers: HandlerCollection<T, "FromThread">;
+  private context: Context<TArchitecture, "MainThread">;
 
-  static Start<T extends ThreadStructure>(workerName: T['Name'], handlers: HandlerCollection<T, "FromThread">): Thread<T> {
+  static Start<T extends ThreadArchitecture>(workerName: T['Name'], handlers: HandlerCollection<T, "FromThread">): Thread<T> {
     return new Thread(workerName, handlers);
   }
 
-  static Test<T extends ThreadStructure>(workerName: T['Name'], handlers: HandlerCollection<T, "FromThread">, testWorker: Worker): Thread<T> {
+  static Test<T extends ThreadArchitecture>(workerName: T['Name'], handlers: HandlerCollection<T, "FromThread">, testWorker: Worker): Thread<T> {
     return new Thread(workerName, handlers, testWorker);
   }
 
-  private constructor(workerName: T['Name'], handlers: HandlerCollection<T, "FromThread">, testWorker: Worker = undefined) {
+  private constructor(workerName: TArchitecture['Name'], handlers: HandlerCollection<TArchitecture, "FromThread">, testWorker: Worker = undefined) {
     this.src = `${workerName}.js`;
-    this.handlers = handlers;
     const worker = testWorker ?? new Worker(this.src);
-    initHandlers<T, "FromThread">(worker, handlers);
+    this.context = new Context<TArchitecture, "MainThread">(worker, handlers);
     this.worker = worker;
   }
 
-  dispatch<TEventKey extends keyof T['ToThread'] & number>(
+  dispatch<TEventKey extends keyof TDispatchers & number>(
     event: TEventKey,
-    payload: T['ToThread'][TEventKey]['payload'],
-    ...onResponse: TOnResponse<T['ToThread'], TEventKey>) {
-    dispatch(this.worker, event, payload, ...onResponse);
+    payload: TDispatchers[TEventKey]['payload'],
+    ...onResponse: TOnResponse<TDispatchers, TEventKey>) {
+    this.context.dispatch(event, payload, ...onResponse);
   }
 
-  async resolve<TEventKey extends TwoWayEvents<T['ToThread']>>(
+  async resolve<TEventKey extends TwoWayEvents<TArchitecture[TDispatchDirection]>>(
     event: TEventKey,
-    payload: T['ToThread'][TEventKey]['payload'],
+    payload: TDispatchers[TEventKey]['payload'],
   ) {
-    return resolve(this.worker, event, payload);
+    return this.context.resolve<TEventKey>(event, payload);
   }
 
-  handle<TEventKey extends OneWayEvents<T['FromThread']>>(event: TEventKey, handler: TConditionalHandler<T['FromThread'], TEventKey>) {
-    handle(event, handler);
+  handle<TEventKey extends OneWayEvents<THandlers>>(event: TEventKey, handler: TConditionalHandler<THandlers, TEventKey>) {
+    this.context.handle(event, handler);
   }
 
   close() {
@@ -49,9 +52,9 @@ export class Thread<T extends ThreadStructure> {
   }
 
   restart() {
-    this.close();
+    this.worker.terminate();
     const worker = new Worker(this.src);
-    initHandlers(worker, this.handlers);
+    this.context.refresh(worker);
     this.worker = worker;
   }
 }
