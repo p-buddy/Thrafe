@@ -9,7 +9,7 @@ This is a library that aims to make it simple and straightforward to make typesa
 
 When working on my [CommunicativeCode](https://github.com/p-buddy/CommunicativeCode) webapp, I found it tricky to use both Typescript and web workers for reasons I outline further below.
 
-Additionally, existing awesome worker libraries like (Comlink)[] and (workway)[] didn't make it easy to accomplish the twoway message passing I needed (i.e. I wanted the main thread to talk to the web worker at will, and vice versa):
+Additionally, existing awesome worker libraries like [Comlink](https://github.com/GoogleChromeLabs/comlink) and [workway](https://github.com/WebReflection/workway) didn't make it easy to accomplish the twoway message passing I needed (i.e. I wanted the main thread to talk to the web worker at will, and vice versa):
 
 > MainThread ⇄ Worker
 
