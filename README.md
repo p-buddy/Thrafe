@@ -15,6 +15,21 @@ Additionally, existing awesome worker libraries like [Comlink](https://github.co
 
 ## Usage
 
+### Architecture Definition
+
+This can go in its own `.ts` file, or at the top of the worker file, or wherever you want really! It's just a type definition, so will be [transpiled]() away.
+
+An architecture consists of 4 things:
+
+- [`const enum`](https://www.typescriptlang.org/docs/handbook/enums.html#const-enums)
+
+```ts
+```
+
+### Worker File
+
+### Main Thread
+
 ### Worker code
 ```ts
 ```
