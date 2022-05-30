@@ -3,7 +3,7 @@ import { Dispatcher } from '../development/Dispatcher';
 import { mockWorkerContext } from "./mockWorkerContext";
 import { handleAndExpectInContext, processResponseAndExpectInContext, respondFromContext, TTestContext, waitForCondition } from './testingUtility';
 import { WorkerThreadAPI } from '../development/types';
-import { attachHandler, getDispatcher } from '../development/workerFunctions';
+import { attachHandler, getDispatcher, setTestOverride } from '../development/workerFunctions';
 import { API as MainAPI, FromThreadEvents } from './testConsumer';
 
 export const testNumber = Math.random() * 1000;
@@ -31,7 +31,8 @@ let handler: Handler<{ 0: (p: number) => void; 1: (p: number) => number; 2: (s: 
 
 export const testContext: TTestContext = {
   init: () => {
-    dispatcher = getDispatcher<Api, ToThreadEvents>(mockWorkerContext.scope);
+    setTestOverride();
+    dispatcher = getDispatcher<MainAPI, FromThreadEvents>(mockWorkerContext.scope);
     handler = attachHandler({
       [ToThreadEvents.passNumberToThread]: (p: number) => {
         handleAndExpectInContext(testContext, testNumber, p);
@@ -49,7 +50,6 @@ export const testContext: TTestContext = {
   },
   test: async () => {
     let _a = false;
-
     dispatcher.request(FromThreadEvents.sendNumberOutAndGetBack, 5, (r) => {
       processResponseAndExpectInContext(testContext, 5, r);
       _a = true;

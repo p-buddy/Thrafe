@@ -3,7 +3,7 @@ import { Handler } from "../development/Handler";
 import { Thread } from "../development/Thread";
 import { MainThreadAPI } from "../development/types";
 import { mockWorkerContext } from "./mockWorkerContext";
-import { dispatched, processResponseAndExpectInContext, TTestContext } from "./testingUtility";
+import { dispatched, processResponseAndExpectInContext, respondFromContext, TTestContext } from "./testingUtility";
 import { type Api as ThreadAPI, ToThreadEvents, testNumber } from "./testWorker";
 
 export type API = MainThreadAPI<FromThreadEvents, typeof handler>
@@ -20,7 +20,9 @@ export const testContext: TTestContext = {
     const thread = new Thread<ThreadAPI>("testWorkerThread", mockWorkerContext.worker);
     dispatcher = thread.getDispatcher<ToThreadEvents>();
     handler = thread.attachHandler({
-      [FromThreadEvents.sendNumberOutAndGetBack]: (a: number) => a
+      [FromThreadEvents.sendNumberOutAndGetBack]: (a: number) => {
+        return respondFromContext(testContext, a);
+      }
     });
   },
   test: async () => {

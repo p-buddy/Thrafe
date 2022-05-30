@@ -28,12 +28,18 @@ export class Thread<TApi extends WorkerThreadAPI<any, any, any>> {
   }
 
   close() {
+    Thrafe.dispose(this.worker);
     this.worker.terminate();
+    this.dispatcher = undefined;
+    this.handler = undefined;
   }
 
   restart() {
-    this.worker.terminate();
-    const worker = new Worker(this.src);
+    const handler = this.handler;
+    this.close();
+    const thread = new Thread<TApi>(this.src);
+    thread.attachHandler(handler);
+    return { thread, dispatcher: thread.getDispatcher<keyof TApi>() };
   }
 
   clone() {

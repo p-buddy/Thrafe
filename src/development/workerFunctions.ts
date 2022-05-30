@@ -12,15 +12,15 @@ const isWorker = () => {
 }
 
 const checkForMainThread = (func: Function) => {
-  if (!isWorker() || overrideChecks) throw new Error(`${func.name} should not be called from the main thread. Instead, construct a new Thread and call the member function of the same name.`);
+  if (!isWorker() && !overrideChecks) throw new Error(`${func.name} should not be called from the main thread. Instead, construct a new Thread and call the member function of the same name.`);
 }
 
-export const getDispatcher = <TApi extends MainThreadAPI<any, any>, TEvents extends number & keyof TApi['interface']>(scope: Scope = self): Dispatcher<TApi> => {
+export const getDispatcher = <TApi extends MainThreadAPI<any, any>, TEvents extends number & keyof TApi['interface']>(scope?: Scope): Dispatcher<TApi> => {
   checkForMainThread(getDispatcher);
   return new Dispatcher(scope);
 }
 
-export const attachHandler = <THandler extends Record<number, (...args: any) => any>>(handler: THandler, scope: Scope = self): Handler<THandler> => {
+export const attachHandler = <THandler extends Record<number, (...args: any) => any>>(handler: THandler, scope?: Scope): Handler<THandler> => {
   checkForMainThread(attachHandler);
-  return new Handler(handler);
+  return new Handler(handler, scope);
 }

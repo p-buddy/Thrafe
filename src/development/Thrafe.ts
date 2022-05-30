@@ -26,13 +26,20 @@ export class Thrafe {
   };
 
   static getInstance = (scope: Scope): Thrafe => {
-    if (scope.thrafe === undefined) return scope.thrafe;
+    const existing = scope.thrafe;
+    if (existing !== undefined) return existing;
     return new Thrafe(scope);
   }
 
-  messageHandlers: TMessageHandlers[] = [[]];
-  responseHandlers: TMessageHandlers[] = [[]];
-  freeResponseIDs: TFreeIDs[] = [[]];
+  static dispose(scope: Scope) {
+    const existing = scope.thrafe;
+    if (existing === undefined) return;
+    scope.thrafe = scope.onmessage = existing.messageHandlers = existing.freeResponseIDs = existing.responseHandlers = existing.scope = null;
+  }
+
+  private messageHandlers: TMessageHandlers[] = [[]];
+  private responseHandlers: TMessageHandlers[] = [[]];
+  private freeResponseIDs: TFreeIDs[] = [[]];
   scope: Scope;
 
   constructor(scope: Scope) {
@@ -73,7 +80,7 @@ export class Thrafe {
 
   private messageHandler = async (ev: MessageEvent<TPostedMessage>): Promise<void> => {
     const { event, payload, responseID, isResponse } = ev.data;
-    const messageType = responseID !== undefined ? isResponse ? EMessageType.Response : EMessageType.Call : EMessageType.OneWay
+    const messageType = responseID !== undefined ? isResponse ? EMessageType.Response : EMessageType.Call : EMessageType.OneWay;
     switch (messageType) {
       case EMessageType.OneWay:
         for (let index = 0; index < (this.messageHandlers[event]?.length ?? 0); index++) ((this.messageHandlers[event] as Function[])[index] as Function)(...payload);
