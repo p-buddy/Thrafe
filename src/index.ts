@@ -2,6 +2,6 @@
 export { generateWorkerThreadAssets, generateAssetsForGlob, type Options } from "./generation/generator";
 
 // development exports
-export type { DefineThreadArchitecture, DefineOneWayMessageStructure } from "./development/types/messageStructure";
+export type { WorkerThreadAPI, MainThreadAPI } from "./development/types";
 export { Thread } from "./development/Thread";
-export { Context } from "./development/Context";
+export { attachHandler, getDispatcher } from "./development/workerFunctions";
