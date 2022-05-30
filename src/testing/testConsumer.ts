@@ -1,29 +1,33 @@
+import { Dispatcher } from "../development/Dispatcher";
+import { Handler } from "../development/Handler";
 import { Thread } from "../development/Thread";
+import { MainThreadAPI } from "../development/types";
 import { mockWorkerContext } from "./mockWorkerContext";
 import { dispatched, processResponseAndExpectInContext, TTestContext } from "./testingUtility";
-import { FromThreadEvents, Architecture, testNumber, ToThreadEvents } from "./testingArchitecture";
+import { type Api as ThreadAPI, ToThreadEvents, testNumber } from "./testWorker";
 
-let thread: Thread<Architecture>;
+export type API = MainThreadAPI<FromThreadEvents, typeof handler>
+
+export const enum FromThreadEvents {
+  sendNumberOutAndGetBack
+}
+
+let dispatcher: Dispatcher<ThreadAPI>;
+let handler: Handler<{ 0: (a: number) => number; }>;
+
 export const testContext: TTestContext = {
   init: () => {
-    thread = Thread.Test<Architecture>(
-      "testWorkerThread",
-      {
-        [FromThreadEvents.sendNumberFromThread]: (p) => { testContext.handlings++ },
-        [FromThreadEvents.sendNumberOutAndGetBack]: (p) => {
-          testContext.handlings++;
-          testContext.responses++;
-          return p;
-        },
-      },
-      mockWorkerContext.worker
-    );
+    const thread = new Thread<ThreadAPI>("testWorkerThread", mockWorkerContext.worker);
+    dispatcher = thread.getDispatcher<ToThreadEvents>();
+    handler = thread.attachHandler({
+      [FromThreadEvents.sendNumberOutAndGetBack]: (a: number) => a
+    });
   },
   test: async () => {
-    thread.dispatch(ToThreadEvents.passNumberToThread, testNumber);
+    dispatcher.send(ToThreadEvents.passNumberToThread, testNumber);
     dispatched(testContext);
     let random = Math.random();
-    await thread.dispatch(ToThreadEvents.passNumberToThreadAndGetItBack, random, (r) => {
+    await dispatcher.request(ToThreadEvents.passNumberToThreadAndGetItBack, random, (r) => {
       processResponseAndExpectInContext(testContext, random, r);
     });
   },

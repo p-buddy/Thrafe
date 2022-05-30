@@ -1,50 +1,30 @@
-import type { CommunicationDirection, DispatchDirectionByContext, HandleDirectionByContext, OneWayEvents, OneWayMessageStructureType, ThreadArchitecture, TwoWayEvents } from './types/messageStructure';
-import type { TOnResponse } from './types/messageDispatching';
-import type { TConditionalHandler, HandlerCollection } from './types/messageHandling';
-import { Context } from './Context';
+import { Dispatcher } from "./Dispatcher";
+import { Handler } from "./Handler";
+import Scope from "./Scope";
+import { Thrafe } from "./Thrafe";
+import { WorkerThreadAPI } from "./types";
 
-export class Thread<
-  TArchitecture extends ThreadArchitecture,
-  TDispatchDirection extends CommunicationDirection = DispatchDirectionByContext<"MainThread">,
-  TDispatchers extends OneWayMessageStructureType = TArchitecture[TDispatchDirection],
-  THandleDirection extends CommunicationDirection = HandleDirectionByContext<"MainThread">,
-  THandlers extends OneWayMessageStructureType = TArchitecture[THandleDirection]
-  > {
+export class Thread<TApi extends WorkerThreadAPI<any, any, any>> {
   private src: string;
   private worker: Worker;
-  private context: Context<TArchitecture, "MainThread">;
+  private dispatcher;
+  private handler;
+  thrafe?: Thrafe;
 
-  static Start<T extends ThreadArchitecture>(workerName: T['Name'], handlers: HandlerCollection<T, "FromThread">): Thread<T> {
-    return new Thread(workerName, handlers);
-  }
-
-  static Test<T extends ThreadArchitecture>(workerName: T['Name'], handlers: HandlerCollection<T, "FromThread">, testWorker: Worker): Thread<T> {
-    return new Thread(workerName, handlers, testWorker);
-  }
-
-  private constructor(workerName: TArchitecture['Name'], handlers: HandlerCollection<TArchitecture, "FromThread">, testWorker: Worker = undefined) {
+  constructor(workerName: TApi['name'], testWorker: Worker = undefined) {
     this.src = `${workerName}.js`;
     const worker = testWorker ?? new Worker(this.src);
-    this.context = new Context<TArchitecture, "MainThread">(worker, handlers);
     this.worker = worker;
   }
 
-  dispatch<TEventKey extends keyof TDispatchers & number>(
-    event: TEventKey,
-    payload: TDispatchers[TEventKey]['payload'],
-    ...onResponse: TOnResponse<TDispatchers, TEventKey>) {
-    this.context.dispatch(event, payload, ...onResponse);
+  getDispatcher<TEvents extends keyof TApi['interface']>(): Dispatcher<TApi> {
+    this.dispatcher = new Dispatcher<TApi>(this.worker);
+    return this.dispatcher;
   }
 
-  async resolve<TEventKey extends TwoWayEvents<TArchitecture[TDispatchDirection]>>(
-    event: TEventKey,
-    payload: TDispatchers[TEventKey]['payload'],
-  ) {
-    return this.context.resolve<TEventKey>(event, payload);
-  }
-
-  handle<TEventKey extends OneWayEvents<THandlers>>(event: TEventKey, handler: TConditionalHandler<THandlers, TEventKey>) {
-    this.context.handle(event, handler);
+  attachHandler<THandler extends Record<number, (...args: any) => any>>(handler: THandler): Handler<THandler> {
+    this.handler = new Handler<THandler>(handler, this.worker);
+    return this.handler;
   }
 
   close() {
@@ -54,8 +34,12 @@ export class Thread<
   restart() {
     this.worker.terminate();
     const worker = new Worker(this.src);
-    this.context.refresh(worker);
-    this.worker = worker;
+  }
+
+  clone() {
+    const thread = new Thread(this.src);
+    const dispatcher = thread.getDispatcher();
+    thread.attachHandler(this.handler);
+    return { thread, dispatcher };
   }
 }
-

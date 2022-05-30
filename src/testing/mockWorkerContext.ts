@@ -1,7 +1,7 @@
-import TScope from "../development/types/TScope";
+import Scope from "../development/Scope";
 import * as chai from 'chai';
 
-export const mockWorkerContext: { worker: Worker, scope: TScope } = {
+export const mockWorkerContext: { worker: Worker, scope: Scope } = {
   worker: {
     onmessage: undefined,
     postMessage: (message) => {
