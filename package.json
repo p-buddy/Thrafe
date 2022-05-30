@@ -1,6 +1,6 @@
 {
   "name": "thrafe",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A typescript library to help you get the most out of multithreading in the browser using web workers",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
