@@ -1,6 +1,15 @@
-import { attachHandler, getDispatcher, type WorkerThreadAPI } from "thrafe";
+import { attachHandler, getDispatcher, type WorkerThreadAPI, type MainThreadAPI, type Handler } from "thrafe";
 
-export type API = WorkerThreadAPI<"testWorker", EMainToWorker, typeof handler>;
+export type FromThreadAPI = MainThreadAPI<EWorkerToMain, Handler<{
+  0: (p: any) => void;
+  1: (p: any) => number;
+}>>;
+
+export const enum EWorkerToMain {
+  dummy,
+}
+
+export type ToThreadAPI = WorkerThreadAPI<"testWorker", EMainToWorker, typeof handler>;
 
 export const enum EMainToWorker {
   SayHi,

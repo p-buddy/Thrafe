@@ -5,12 +5,18 @@
 
   import { Thread } from "thrafe";
   import type { API } from "$lib/workerUnderTest";
-  import { handler } from "$lib/workerToMain";
+  import { setHandler } from "$lib/workerToMain";
 
   onMount(async () => {
-    const thread = new Thread<API>();
-
-    const handler = new Thread<API>();
+    const thread = new Thread<API>("testWorker");
+    const handler = thread.attachHandler({
+      [EWorkerToMain.dummy]: (p) => {
+        console.log(p);
+      },
+      [EWorkerToMain.responseful]: (p) => {
+        return 0;
+      },
+    });
 
     // [EWorkerToMain.dummy]: (p) => {
     //   console.log(p);
