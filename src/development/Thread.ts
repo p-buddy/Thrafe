@@ -1,8 +1,8 @@
 import { Dispatcher } from "./Dispatcher";
 import { Handler } from "./Handler";
-import Scope from "./Scope";
 import { Thrafe } from "./Thrafe";
-import { WorkerThreadAPI } from "./types";
+import { MainThreadAPI, WorkerThreadAPI } from "./types";
+import { attachHandler } from "./workerFunctions";
 
 export class Thread<TApi extends WorkerThreadAPI<any, any, any>> {
   private src: string;
@@ -10,6 +10,15 @@ export class Thread<TApi extends WorkerThreadAPI<any, any, any>> {
   private dispatcher;
   private handler;
   thrafe?: Thrafe;
+
+  static Make
+    <TOutbound extends WorkerThreadAPI<any, any, any>, TInbound extends MainThreadAPI<any, any>>(workerName: TOutbound['name'], handles: TInbound['interface'])
+    : [thread: Thread<TOutbound>, dispatcher: Dispatcher<TOutbound>, handler: Handler<TInbound['interface']>] {
+    const thread = new Thread<TOutbound>(workerName);
+    const dispatcher = thread.getDispatcher();
+    const handler = attachHandler<TInbound['interface']>(handles);
+    return [thread, dispatcher, handler];
+  }
 
   constructor(workerName: TApi['name'], testWorker: Worker = undefined) {
     this.src = `${workerName}.js`;

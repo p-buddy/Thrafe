@@ -1,7 +1,8 @@
 import { Thrafe } from "./Thrafe";
 import Scope from "./Scope"
+import { AnyFunction } from "./types";
 
-export class Handler<THandler extends Record<number, (...args: any) => any>> {
+export class Handler<THandler extends Record<number, AnyFunction>> {
   private thrafe: Thrafe;
   interface: THandler;
 

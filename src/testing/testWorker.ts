@@ -26,7 +26,7 @@ export const enum ToThreadEvents {
   passObjectToThreadAndGetItBack,
 }
 
-let dispatcher: Dispatcher<MainAPI>;
+let dispatcher;
 let handler: Handler<{ 0: (p: number) => void; 1: (p: number) => number; 2: (s: string) => void; 3: (s: string) => string; 4: (o: { testNumber: number; testString: string; }) => void; 5: (o: { testNumber: number; testString: string; }) => { testNumber: number; testString: string; }; }>;
 
 export const testContext: TTestContext = {

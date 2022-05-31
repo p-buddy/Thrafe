@@ -22,7 +22,7 @@ export const testContext: TTestContext = {
     handler = thread.attachHandler({
       [FromThreadEvents.sendNumberOutAndGetBack]: (a: number) => {
         return respondFromContext(testContext, a);
-      }
+      },
     });
   },
   test: async () => {

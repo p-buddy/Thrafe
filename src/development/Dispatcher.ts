@@ -1,6 +1,7 @@
 import { Thrafe, type TPostedMessage } from "./Thrafe";
 import type { AnyFunction, ThreadAPI } from "./types";
 import type Scope from "./Scope";
+import { Handler } from "./Handler";
 
 type ArgsAndResponseCallback<TFunc extends AnyFunction> = [...args: Parameters<TFunc>, onResponse: (response: ReturnType<TFunc>) => void];
 

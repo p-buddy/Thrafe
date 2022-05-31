@@ -1,13 +1,14 @@
 import { attachHandler, getDispatcher, type WorkerThreadAPI, type MainThreadAPI, type Handler } from "thrafe";
 
-export type FromThreadAPI = MainThreadAPI<EWorkerToMain, Handler<{
-  0: (p: any) => void;
-  1: (p: any) => number;
-}>>;
-
 export const enum EWorkerToMain {
   dummy,
+  responseful
 }
+
+export type FromThreadAPI = MainThreadAPI<EWorkerToMain, Handler<{
+  0: (p: number) => void;
+  1: (p: number) => number;
+}>>;
 
 export type ToThreadAPI = WorkerThreadAPI<"testWorker", EMainToWorker, typeof handler>;
 
@@ -18,7 +19,7 @@ export const enum EMainToWorker {
   Divide,
 }
 
-const dispatcher = getDispatcher();
+const dispatcher = getDispatcher<FromThreadAPI, EWorkerToMain>();
 const handler = attachHandler({
   [EMainToWorker.GetCube]: async (a: number) => {
     await Promise.resolve();
