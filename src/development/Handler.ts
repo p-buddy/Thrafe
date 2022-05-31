@@ -1,12 +1,21 @@
 import { Thrafe } from "./Thrafe";
 import Scope from "./Scope"
-import { AnyFunction } from "./types";
+import { AnyFunction, ThreadAPI } from "./types";
 
-export class Handler<THandler extends Record<number, AnyFunction>> {
+type HandlerLike = Record<number, AnyFunction>;
+
+type APILike = {
+  interface: Record<number, AnyFunction>
+};
+
+type Input = HandlerLike | APILike;
+
+
+export class Handler<TInput extends Input> {
   private thrafe: Thrafe;
-  interface: THandler;
+  interface: TInput extends APILike ? APILike['interface'] : TInput;
 
-  constructor(handler: THandler, scope?: Scope) {
+  constructor(handler: TInput & HandlerLike, scope?: Scope) {
     const thrafe = Thrafe.getInstance(scope ?? self);
     this.thrafe = thrafe;
     for (const key in handler) {

@@ -2,13 +2,33 @@
   import { onMount } from "svelte";
   import { longFunction } from "$lib/utils";
 
-  import { Thread } from "thrafe";
+  import { Handler, Thread } from "thrafe";
   import {
     EWorkerToMain,
     EMainToWorker,
     ToThreadAPI,
     FromThreadAPI,
   } from "$lib/workerUnderTest";
+  import type { Dispatcher } from "../../../../dist/development/Dispatcher";
+
+  let thread: Thread<ToThreadAPI>;
+  let dispatcher: Dispatcher<ToThreadAPI>;
+  let handler: Handler<FromThreadAPI>;
+
+  onMount(() => {
+    const [thread, dispatcher, handler] = Thread.Make<
+      ToThreadAPI,
+      FromThreadAPI
+    >("testWorker", {
+      [EWorkerToMain.dummy]: (p: number) => {
+        dispatcher.send(EMainToWorker.SayHi);
+        console.log(p);
+      },
+      [EWorkerToMain.responseful]: (p: number) => {
+        return 0;
+      },
+    });
+  });
 
   onMount(async () => {
     const thread = new Thread<ToThreadAPI>("testWorker");
