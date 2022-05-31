@@ -13,7 +13,7 @@ export class Thread<TApi extends WorkerThreadAPI<any, any, any>> {
 
   static Make
     <TOutbound extends WorkerThreadAPI<any, any, any>, TInbound extends MainThreadAPI<any, any>>(workerName: TOutbound['name'], handles: TInbound['interface'])
-    : [thread: Thread<TOutbound>, dispatcher: Dispatcher<TOutbound>, handler: Handler<TInbound['interface']>] {
+    : [thread: Thread<TOutbound>, dispatcher: Dispatcher<TOutbound>, handler: Handler<TInbound>] {
     const thread = new Thread<TOutbound>(workerName);
     const dispatcher = thread.getDispatcher();
     const handler = attachHandler<TInbound['interface']>(handles);

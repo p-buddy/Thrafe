@@ -16,18 +16,18 @@
   let handler: Handler<FromThreadAPI>;
 
   onMount(() => {
-    const [thread, dispatcher, handler] = Thread.Make<
-      ToThreadAPI,
-      FromThreadAPI
-    >("testWorker", {
-      [EWorkerToMain.dummy]: (p: number) => {
-        dispatcher.send(EMainToWorker.SayHi);
-        console.log(p);
-      },
-      [EWorkerToMain.responseful]: (p: number) => {
-        return 0;
-      },
-    });
+    [thread, dispatcher, handler] = Thread.Make<ToThreadAPI, FromThreadAPI>(
+      "testWorker",
+      {
+        [EWorkerToMain.dummy]: (p: number) => {
+          dispatcher.send(EMainToWorker.SayHi);
+          console.log(p);
+        },
+        [EWorkerToMain.responseful]: (p: number) => {
+          return 0;
+        },
+      }
+    );
   });
 
   onMount(async () => {

@@ -10,7 +10,6 @@ type APILike = {
 
 type Input = HandlerLike | APILike;
 
-
 export class Handler<TInput extends Input> {
   private thrafe: Thrafe;
   interface: TInput extends APILike ? APILike['interface'] : TInput;
