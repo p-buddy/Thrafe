@@ -36,6 +36,7 @@
       thread.getDispatcher<EMainToWorker>();
     const handler: Handler<FromThreadAPI> = thread.attachHandler({
       [EWorkerToMain.dummy]: (p: number) => {
+        dispatcher.send(EMainToWorker.SayHi, 4);
         console.log(p);
       },
       [EWorkerToMain.responseful]: (p: number) => {
