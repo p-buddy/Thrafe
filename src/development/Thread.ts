@@ -1,7 +1,7 @@
 import { Dispatcher } from "./Dispatcher";
 import { Handler } from "./Handler";
 import { Thrafe } from "./Thrafe";
-import { MainThreadAPI, WorkerThreadAPI } from "./types";
+import { Events, MainThreadAPI, WorkerThreadAPI } from "./types";
 import { attachHandler } from "./workerFunctions";
 
 export class Thread<TApi extends WorkerThreadAPI<any, any, any>> {
@@ -12,11 +12,11 @@ export class Thread<TApi extends WorkerThreadAPI<any, any, any>> {
   thrafe?: Thrafe;
 
   static Make
-    <TOutbound extends WorkerThreadAPI<any, any, any>, TInbound extends MainThreadAPI<any, any>>(workerName: TOutbound['name'], handles: TInbound['interface'])
+    <TOutbound extends WorkerThreadAPI<any, any, any>, TInbound extends MainThreadAPI<any, any>>(workerName: TOutbound['name'], handles: TInbound)
     : [thread: Thread<TOutbound>, dispatcher: Dispatcher<TOutbound>, handler: Handler<TInbound>] {
     const thread = new Thread<TOutbound>(workerName);
     const dispatcher = thread.getDispatcher();
-    const handler = attachHandler<TInbound['interface']>(handles);
+    const handler = attachHandler<TInbound>(handles);
     return [thread, dispatcher, handler];
   }
 
@@ -26,7 +26,7 @@ export class Thread<TApi extends WorkerThreadAPI<any, any, any>> {
     this.worker = worker;
   }
 
-  getDispatcher<TEvents extends keyof TApi['interface']>(): Dispatcher<TApi> {
+  getDispatcher<TEvents extends keyof Events<TApi>>(): Dispatcher<TApi> {
     this.dispatcher = new Dispatcher<TApi>(this.worker);
     return this.dispatcher;
   }

@@ -8,6 +8,7 @@ import { type Api as ThreadAPI, ToThreadEvents, testNumber } from "./testWorker"
 
 export type API = MainThreadAPI<FromThreadEvents, typeof handler>
 
+
 export const enum FromThreadEvents {
   sendNumberOutAndGetBack
 }

@@ -15,7 +15,7 @@ const checkForMainThread = (func: Function) => {
   if (!isWorker() && !overrideChecks) throw new Error(`${func.name} should not be called from the main thread. Instead, construct a new Thread and call the member function of the same name.`);
 }
 
-export const getDispatcher = <TApi extends MainThreadAPI<TEvents, any>, TEvents extends number & keyof TApi['interface']>(scope?: Scope): Dispatcher<TApi> => {
+export const getDispatcher = <TApi extends MainThreadAPI<TEvents, any>, TEvents extends number & keyof TApi>(scope?: Scope): Dispatcher<TApi> => {
   checkForMainThread(getDispatcher);
   return new Dispatcher(scope);
 }
