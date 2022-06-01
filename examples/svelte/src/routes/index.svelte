@@ -31,8 +31,9 @@
   });
 
   onMount(async () => {
-    const thread = new Thread<ToThreadAPI>("testWorker");
-    const dispatcher = thread.getDispatcher<EMainToWorker>();
+    const thread: Thread<ToThreadAPI> = new Thread<ToThreadAPI>("testWorker");
+    const dispatcher: Dispatcher<ToThreadAPI> =
+      thread.getDispatcher<EMainToWorker>();
     const handler: Handler<FromThreadAPI> = thread.attachHandler({
       [EWorkerToMain.dummy]: (p: number) => {
         console.log(p);

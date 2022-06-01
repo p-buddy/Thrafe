@@ -14,7 +14,6 @@ type CallAndResponseKeys<TBase extends { [k in keyof TBase]: AnyFunction }> = {
 }[keyof TBase] & keyof TBase & number;
 
 
-
 export class Dispatcher<TApi extends API<TApi>> {
   private thrafe: Thrafe;
   private postMessage: Scope['postMessage'];
