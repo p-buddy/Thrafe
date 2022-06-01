@@ -48,7 +48,7 @@ export class Thread<TApi extends WorkerThreadAPI<any, any, any>> {
     this.close();
     const thread = new Thread<TApi>(this.src);
     thread.attachHandler(handler);
-    return { thread, dispatcher: thread.getDispatcher<keyof TApi>() };
+    return { thread, dispatcher: thread.getDispatcher<keyof Events<TApi>>() };
   }
 
   clone() {
