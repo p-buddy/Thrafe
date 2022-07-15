@@ -1,10 +1,12 @@
 import { Dispatcher } from "./Dispatcher";
 import { Handler } from "./Handler";
 import { Thrafe } from "./Thrafe";
-import { Events, MainThreadAPI, WorkerThreadAPI } from "./types";
+import { FunctionContainer, ThreadCommunication } from "./types";
 import { attachHandler } from "./workerFunctions";
 
-export class Thread<TApi extends WorkerThreadAPI<any, any, any>> {
+export class Thread<TApi extends ThreadCommunication> {
+  toThread: TApi['toThread'];
+  fromThread: TApi['fromThread'];
   private src: string;
   private worker: Worker;
   private dispatcher;
@@ -12,11 +14,11 @@ export class Thread<TApi extends WorkerThreadAPI<any, any, any>> {
   thrafe?: Thrafe;
 
   static Make
-    <TOutbound extends WorkerThreadAPI<any, any, any>, TInbound extends MainThreadAPI<any, any>>(workerName: TOutbound['name'], handles: TInbound)
-    : [thread: Thread<TOutbound>, dispatcher: Dispatcher<TOutbound>, handler: Handler<TInbound>] {
-    const thread = new Thread<TOutbound>(workerName);
-    const dispatcher = thread.getDispatcher();
-    const handler = attachHandler<TInbound>(handles);
+    <TComms extends ThreadCommunication>(workerName: TComms['name'], handles: TComms['fromThread'])
+    : [thread: Thread<TComms>, dispatcher: Dispatcher<TComms['toThread']>, handler: Handler<TComms['fromThread']>] {
+    const thread = new Thread<TComms>(workerName);
+    const dispatcher = thread.getDispatcher<TComms['toThread']>();
+    const handler = attachHandler<TComms['fromThread']>(handles);
     return [thread, dispatcher, handler];
   }
 
@@ -26,13 +28,13 @@ export class Thread<TApi extends WorkerThreadAPI<any, any, any>> {
     this.worker = worker;
   }
 
-  getDispatcher<TEvents extends keyof Events<TApi>>(): Dispatcher<TApi> {
-    this.dispatcher = new Dispatcher<TApi>(this.worker);
+  getDispatcher<TEvents extends TApi['toThread']>(): Dispatcher<TEvents> {
+    this.dispatcher = new Dispatcher<TEvents>(this.worker);
     return this.dispatcher;
   }
 
-  attachHandler<THandler extends Record<number, (...args: any) => any>>(handler: THandler): Handler<THandler> {
-    this.handler = new Handler<THandler>(handler, this.worker);
+  attachHandler<TEvents extends TApi['fromThread']>(handler: TEvents): Handler<TEvents> {
+    this.handler = new Handler<TEvents>(handler, this.worker);
     return this.handler;
   }
 
@@ -48,7 +50,7 @@ export class Thread<TApi extends WorkerThreadAPI<any, any, any>> {
     this.close();
     const thread = new Thread<TApi>(this.src);
     thread.attachHandler(handler);
-    return { thread, dispatcher: thread.getDispatcher<keyof Events<TApi>>() };
+    return { thread, dispatcher: thread.getDispatcher<TApi['toThread']>() };
   }
 
   clone() {

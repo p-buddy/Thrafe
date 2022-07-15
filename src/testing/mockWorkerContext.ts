@@ -1,22 +1,23 @@
 import Scope from "../development/Scope";
-import * as chai from 'chai';
+
+const notImplemented = (name: string) => {throw new Error(`Not implemented: ${name}`)};
 
 export const mockWorkerContext: { worker: Worker, scope: Scope } = {
   worker: {
-    onmessage: undefined,
+    onmessage: null,
     postMessage: (message) => {
       // @ts-ignore
       mockWorkerContext.scope.onmessage({ data: message });
     },
-    addEventListener: undefined,
-    removeEventListener: undefined,
-    onmessageerror: undefined,
-    terminate: undefined,
-    dispatchEvent: undefined,
-    onerror: undefined
+    addEventListener: () => notImplemented("addEventListener"),
+    removeEventListener: () => notImplemented("removeEventListener"),
+    onmessageerror: null,
+    terminate: () => notImplemented("terminate"),
+    dispatchEvent: () => notImplemented("dispatchEvent"),
+    onerror: null
   },
   scope: {
-    onmessage: undefined,
+    onmessage: null,
     postMessage: (message) => {
       // @ts-ignore
       mockWorkerContext.worker.onmessage({ data: message });

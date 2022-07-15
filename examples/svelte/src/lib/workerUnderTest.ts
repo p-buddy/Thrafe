@@ -1,51 +1,25 @@
-import { attachHandler, getDispatcher, type WorkerThreadAPI, type MainThreadAPI, type Handler } from "thrafe";
+import { attachHandler, getDispatcher, type ThreadAPI } from "thrafe";
 
-export const enum EWorkerToMain {
-  dummy,
-  responseful
-}
+export type API = ThreadAPI<"testWorker", typeof dispatcher, typeof handler>;
 
-export type FromThreadAPI = MainThreadAPI<EWorkerToMain, Handler<{
-  0: (p: number) => void;
-  1: (p: number) => number;
-}>>;
+const dispatcher = getDispatcher<{
+  dummy: (p: number) => void,
+  responseful: (p: number) => number,
+}>();
 
-export type ToThreadAPI = WorkerThreadAPI<"testWorker", EMainToWorker, typeof handler>;
-
-export const enum EMainToWorker {
-  SayHi,
-  GetSquare,
-  GetCube,
-  Divide,
-}
-
-const dispatcher = getDispatcher<FromThreadAPI, EWorkerToMain>();
 const handler = attachHandler({
-  [EMainToWorker.GetCube]: async (a: number) => {
+  cube: async (a: number) => {
     await Promise.resolve();
     return a * a * a;
   },
-  [EMainToWorker.Divide]: (a: number, b: number): number => {
+  divide: (a: number, b: number): number => {
     return a / b;
   },
-
-  [EMainToWorker.GetSquare]: (a: number) => {
-    //dispatcher.request(EMainToWorker.Divide, 3, 3);
+  square: (a: number) => {
+    dispatcher.request("responseful", 4);
     return a * a;
   },
-  [EMainToWorker.SayHi]: () => {
+  log: () => {
     console.log('hello from a thread!');
   }
 });
-
-
-/*
-
-x.dispatch();
-
-const y = new x();
-
-context.dispatch()
-
-context.dispatch(EWorkerToMain.dummy, 666);
-*/

@@ -10,7 +10,7 @@ export class Handler<TInput extends API<TInput>> {
     const thrafe = Thrafe.getInstance(scope ?? self);
     this.thrafe = thrafe;
     for (const key in handler) {
-      thrafe.addEventHandler(parseInt(key), handler[key]);
+      thrafe.addEventHandler(key, handler[key]);
     }
   }
 }

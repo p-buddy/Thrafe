@@ -1,29 +1,22 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { longFunction } from "$lib/utils";
+  import { type Handler, type Dispatcher, Thread, type To, type From } from "thrafe";
+  import type { API } from "$lib/workerUnderTest";
 
-  import { Handler, Thread } from "thrafe";
-  import {
-    EWorkerToMain,
-    EMainToWorker,
-    ToThreadAPI,
-    FromThreadAPI,
-  } from "$lib/workerUnderTest";
-  import type { Dispatcher } from "../../../../dist/development/Dispatcher";
-
-  let thread: Thread<ToThreadAPI>;
-  let dispatcher: Dispatcher<ToThreadAPI>;
-  let handler: Handler<FromThreadAPI>;
+  let thread: Thread<API>;
+  let dispatcher: To<typeof thread>;
+  let handler: From<typeof thread>;
 
   onMount(() => {
-    [thread, dispatcher, handler] = Thread.Make<ToThreadAPI, FromThreadAPI>(
+    [thread, dispatcher, handler] = Thread.Make<API>(
       "testWorker",
       {
-        [EWorkerToMain.dummy]: (p: number) => {
-          dispatcher.send(EMainToWorker.SayHi);
+        dummy: (p: number) => {
+          dispatcher.send("log");
           console.log(p);
         },
-        [EWorkerToMain.responseful]: (p: number) => {
+        responseful: (p: number) => {
           return 0;
         },
       }
@@ -31,16 +24,15 @@
   });
 
   onMount(async () => {
-    const thread: Thread<ToThreadAPI> = new Thread<ToThreadAPI>("testWorker");
-    const dispatcher: Dispatcher<ToThreadAPI> =
-      thread.getDispatcher<EMainToWorker>();
-    const handler: Handler<FromThreadAPI> = thread.attachHandler({
-      [EWorkerToMain.dummy]: (p: number) => {
-        dispatcher.send(EMainToWorker.SayHi, 4);
+    const thread: Thread<API> = new Thread<API>("testWorker");
+    const dispatcher = thread.getDispatcher();
+    const handler = thread.attachHandler({
+      dummy: (p: number) => {
+        dispatcher.send("log");
         console.log(p);
       },
-      [EWorkerToMain.responseful]: (p: number) => {
-        return 0;
+      responseful: (p: number) => {
+        return p;
       },
     });
 
@@ -49,7 +41,7 @@
     const bases = Array.from(Array(cases).keys()).map((i) => i);
     const squares = bases.map((n) => n * n);
     const promises = bases.map((n) =>
-      dispatcher.resolve(EMainToWorker.GetSquare, n)
+      dispatcher.resolve("square", n)
     );
 
     const group1 = promises.slice(0, groupSize);

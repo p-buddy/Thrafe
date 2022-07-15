@@ -1,20 +1,19 @@
 import { Thrafe, type TPostedMessage } from "./Thrafe";
 import type { AnyFunction, Events, API } from "./types";
 import type Scope from "./Scope";
-import { Handler } from "./Handler";
 
 type ArgsAndResponseCallback<TFunc extends AnyFunction> = [...args: Parameters<TFunc>, onResponse: (response: ReturnType<TFunc>) => void];
 
 type OneWayKeys<TBase extends { [k in keyof TBase]: AnyFunction }> = {
   [K in keyof TBase]-?: ReturnType<TBase[K]> extends void ? K : never
-}[keyof TBase] & keyof TBase & number;
+}[keyof TBase] & keyof TBase;
 
 type CallAndResponseKeys<TBase extends { [k in keyof TBase]: AnyFunction }> = {
   [K in keyof TBase]-?: ReturnType<TBase[K]> extends void ? never : K
-}[keyof TBase] & keyof TBase & number;
-
+}[keyof TBase] & keyof TBase;
 
 export class Dispatcher<TApi extends API<TApi>> {
+  events: TApi;
   private thrafe: Thrafe;
   private postMessage: Scope['postMessage'];
 
