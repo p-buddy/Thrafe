@@ -24,8 +24,7 @@ export class Thread<TApi extends ThreadCommunication> {
 
   constructor(workerName: TApi['name'], testWorker: Worker = undefined) {
     this.src = `${workerName}.js`;
-    const worker = testWorker ?? new Worker(this.src);
-    this.worker = worker;
+    this.worker = testWorker !== undefined ? testWorker : new Worker(this.src);
   }
 
   getDispatcher<TEvents extends TApi['toThread']>(): Dispatcher<TEvents> {

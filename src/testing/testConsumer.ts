@@ -1,34 +1,23 @@
-import { Dispatcher } from "../development/Dispatcher";
-import { Handler } from "../development/Handler";
 import { Thread } from "../development/Thread";
+import { From, To } from "../development/types";
 import { mockWorkerContext } from "./mockWorkerContext";
-import { dispatched, processResponseAndExpectInContext, respondFromContext, TTestContext } from "./testingUtility";
-import { type API, testNumber } from "./testWorker";
+import { runTest, setUp, TestContext } from "./testingUtility";
+import type { API } from "./testWorker";
 
 export const enum FromThreadEvents {
   sendNumberOutAndGetBack
 }
 
-let dispatcher: Dispatcher<API['toThread']>;
-let handler: Handler<API['fromThread']>;
+let dispatcher: To<Thread<API>>;
+let handler: From<Thread<API>>;
 
-export const testContext: TTestContext = {
+export const testContext: TestContext = {
   init: () => {
     const thread = new Thread<API>("testWorkerThread", mockWorkerContext.worker);
-    dispatcher = thread.getDispatcher();
-    handler = thread.attachHandler({
-      sendNumberOutAndGetBack: (a: number) => {
-        return respondFromContext(testContext, a);
-      },
-    });
+    [dispatcher, handler] = setUp(testContext, mockWorkerContext.worker, thread);
   },
   test: async () => {
-    dispatcher.send("passNumberToThread", testNumber);
-    dispatched(testContext);
-    let random = Math.random();
-    await dispatcher.request("passNumberToThreadAndGetItBack", random, (r) => {
-      processResponseAndExpectInContext(testContext, random, r);
-    });
+    await runTest(testContext, dispatcher);
   },
   errors: 0,
   dispatches: 0,

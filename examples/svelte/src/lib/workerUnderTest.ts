@@ -16,7 +16,9 @@ const handler = attachHandler({
     return a / b;
   },
   square: (a: number) => {
-    dispatcher.request("responseful", 4);
+    dispatcher.request("responseful", 4, (r: number) => {
+      
+    });
     return a * a;
   },
   log: () => {
